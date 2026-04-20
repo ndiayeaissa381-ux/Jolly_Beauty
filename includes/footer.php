@@ -1,13 +1,14 @@
+<?php $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8'); ?>
 <footer class="footer">
   <div class="footer-grid">
     <div>
       <div class="footer-brand-logo">
         <?php
         $logoFile = null;
-        $imgDir = __DIR__ . '/../images/';
+        $imgDir = __DIR__ . '/../assets/images/brand/';
         if (is_dir($imgDir)) {
           $imgs = array_values(array_filter(scandir($imgDir), fn($f) => preg_match('/\.(jpg|jpeg|png|webp|svg|gif)$/i', $f)));
-          if (!empty($imgs)) $logoFile = '/Jolly_Beauty/images/' . $imgs[0];
+          if (!empty($imgs)) $logoFile = $jbBase . '/assets/images/brand/' . $imgs[0];
         }
         if ($logoFile): ?><img src="<?= htmlspecialchars($logoFile) ?>" alt="Jolly Beauty"><?php else: ?>Jolly <em>Beauty</em><?php endif; ?>
       </div>
@@ -25,11 +26,12 @@
     <div class="footer-col">
       <h4>Collections</h4>
       <ul>
-        <li><a href="/Jolly_Beauty/products.php">Tous les produits</a></li>
-        <li><a href="/Jolly_Beauty/products.php?category=bijoux">Bijoux</a></li>
-        <li><a href="/Jolly_Beauty/products.php?category=soins">Soins &amp; Rituels</a></li>
-        <li><a href="/Jolly_Beauty/products.php?category=coffrets">Coffrets Cadeaux</a></li>
-        <li><a href="/Jolly_Beauty/products.php">Nouveautés</a></li>
+        <li><a href="<?= $jbBase ?>/category.php?c=all">Toute la collection</a></li>
+        <li><a href="<?= $jbBase ?>/bijoux.php">Bijoux</a></li>
+        <li><a href="<?= $jbBase ?>/soins-rituels.php">Soins &amp; Rituels</a></li>
+        <li><a href="<?= $jbBase ?>/coffrets.php">Coffrets Cadeaux</a></li>
+        <li><a href="<?= $jbBase ?>/rituels.php">Rituels</a></li>
+        <li><a href="<?= $jbBase ?>/index.php#bestsellers">Nouveautés</a></li>
       </ul>
     </div>
 
@@ -39,7 +41,7 @@
         <li><a href="#">Guide des tailles</a></li>
         <li><a href="#">Livraison et retours</a></li>
         <li><a href="#">FAQ</a></li>
-        <li><a href="/Jolly_Beauty/login.php">Mon compte</a></li>
+        <li><a href="<?= $jbBase ?>/login.php">Mon compte</a></li>
         <li><a href="#">Suivi de commande</a></li>
       </ul>
     </div>
@@ -70,7 +72,8 @@
   </div>
 </footer>
 
-<script src="/Jolly_Beauty/js/main.js"></script>
+<script>window.JB_BASE=<?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;</script>
+<script src="<?= $jbBase ?>/assets/js/script.js"></script>
 
 <script>
 async function submitNewsletterFooter(e, form) {
@@ -79,7 +82,7 @@ async function submitNewsletterFooter(e, form) {
   btn.textContent = '...'; btn.disabled = true;
   try {
     const fd = new FormData(form);
-    const r = await fetch('/Jolly_Beauty/api/newsletter.php', {method:'POST', body:fd});
+    const r = await fetch('<?= $jbBase ?>/api/newsletter.php', {method:'POST', body:fd});
     const d = await r.json();
     showToast(d.message || 'Merci !');
     if (d.success) form.reset();

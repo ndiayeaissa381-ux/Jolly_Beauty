@@ -16,8 +16,30 @@ define('ADMIN_USER', 'admin');
 define('ADMIN_PASS_PLAIN', 'JollyBeauty2025!');
 
 // ── APP ──────────────────────────────────────────────────────
-define('APP_URL', 'http://localhost/Jolly_Beauty');
-define('BASE_URL', '/Jolly_Beauty');;
+/** Chemin URL du dossier du site sous DOCUMENT_ROOT (ex. /Jolly_Beauty ou vide si vhost à la racine). */
+function jb_detect_base_url(): string {
+    $doc = $_SERVER['DOCUMENT_ROOT'] ?? '';
+    if ($doc === '') {
+        return '/Jolly_Beauty';
+    }
+    $docReal = realpath($doc);
+    $appReal = realpath(__DIR__ . '/..');
+    if ($docReal === false || $appReal === false) {
+        return '/Jolly_Beauty';
+    }
+    $docNorm = str_replace('\\', '/', rtrim($docReal, '/'));
+    $appNorm = str_replace('\\', '/', rtrim($appReal, '/'));
+    if (!str_starts_with($appNorm, $docNorm)) {
+        return '/Jolly_Beauty';
+    }
+    $rel = substr($appNorm, strlen($docNorm));
+    return $rel === '' ? '' : $rel;
+}
+
+define('BASE_URL', jb_detect_base_url());
+$jbHost   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$jbScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+define('APP_URL', $jbScheme . '://' . $jbHost . (BASE_URL === '' ? '' : BASE_URL));
 define('APP_NAME', 'Jolly Beauty');
 
 // ── SESSION ──────────────────────────────────────────────────
@@ -60,6 +82,29 @@ function formatPrice(float $p): string {
     return number_format($p, 2, ',', ' ') . ' €';
 }
 
+/** URL affichable pour la vignette panier / checkout (localStorage). */
+function jb_cart_item_image_url(array $item): string {
+    $url = trim((string)($item['image'] ?? ''));
+    if ($url === '') {
+        return '';
+    }
+    if (preg_match('~^https?://~i', $url)) {
+        return $url;
+    }
+    if (BASE_URL !== '' && str_starts_with($url, BASE_URL . '/')) {
+        return $url;
+    }
+    if (str_starts_with($url, '/assets/') || str_starts_with($url, '/images/')) {
+        return (BASE_URL === '' ? '' : BASE_URL) . $url;
+    }
+    if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+        return $url;
+    }
+    $cat = trim((string)($item['category'] ?? ''));
+    $fname = ltrim(str_replace('\\', '/', $url), '/');
+    return BASE_URL . '/assets/images/' . ($cat !== '' ? $cat . '/' : '') . $fname;
+}
+
 function activeClass(string $page): string {
     $current = basename($_SERVER['PHP_SELF'], '.php');
     return $current === $page ? 'active' : '';
@@ -85,7 +130,7 @@ function getProducts(?string $cat = null, string $query = '', string $sort = 'de
     $params = [];
 
     if ($cat && $cat !== 'all') {
-        $sql    .= ' AND c.slug = ?';
+        $sql    .= ' AND LOWER(c.slug) = LOWER(?)';
         $params[] = $cat;
     }
     if ($query !== '') {
@@ -120,7 +165,7 @@ function getProductBySlug(string $slug): ?array {
          LEFT JOIN product_images pi ON pi.product_id = p.id
          LEFT JOIN product_materials pm ON pm.product_id = p.id
          LEFT JOIN product_sizes ps ON ps.product_id = p.id
-         WHERE p.slug = ? AND p.active = 1
+         WHERE LOWER(p.slug) = LOWER(?) AND p.active = 1
          GROUP BY p.id LIMIT 1"
     );
     $stmt->execute([$slug]);
@@ -154,7 +199,168 @@ function _hydrateProduct(array $row): array {
     $row['price']     = (float) $row['price'];
     $row['old_price'] = $row['old_price'] ? (float) $row['old_price'] : null;
     unset($row['img_list'], $row['mat_list'], $row['size_list']);
+
+    // Normalise les URLs d'images pour éviter les images "cassées"
+    $cat = (string)($row['category'] ?? '');
+    $row['images'] = array_values(array_filter(array_map(
+        fn($u, $i) => resolveProductImageUrl((string)$u, $cat, (int)$i),
+        $row['images'],
+        array_keys($row['images'])
+    )));
+    if (empty($row['images'])) {
+        $fb = resolveProductImageUrl('', $cat, 0);
+        if ($fb) {
+            $row['images'] = [$fb];
+        }
+    }
     return $row;
+}
+
+function jb_fs_to_public_url(string $absFile): ?string {
+    $root = realpath(__DIR__ . '/..');
+    if ($root === false) {
+        return null;
+    }
+    $rp = realpath($absFile);
+    if ($rp === false || !is_file($rp)) {
+        return null;
+    }
+    $rootNorm = str_replace('\\', '/', $root);
+    $fileNorm = str_replace('\\', '/', $rp);
+    if (!str_starts_with($fileNorm, $rootNorm)) {
+        return null;
+    }
+    $rel = substr($fileNorm, strlen($rootNorm));
+    return BASE_URL . '/' . ltrim(str_replace('\\', '/', $rel), '/');
+}
+
+/** Tente de faire correspondre une valeur BDD à un fichier réel sous le projet. */
+function jb_try_resolve_local_image(string $url): ?string {
+    $root = realpath(__DIR__ . '/..');
+    if ($root === false || trim($url) === '') {
+        return null;
+    }
+    $u = str_replace('\\', '/', trim($url));
+    $tryPaths = [];
+
+    if (BASE_URL !== '' && str_starts_with($u, BASE_URL . '/')) {
+        $tryPaths[] = $root . '/' . ltrim(substr($u, strlen(BASE_URL)), '/');
+    }
+    if (str_starts_with($u, '/assets/') || str_starts_with($u, '/images/')) {
+        $tryPaths[] = $root . str_replace('/', DIRECTORY_SEPARATOR, $u);
+        if (BASE_URL !== '') {
+            $tryPaths[] = $root . DIRECTORY_SEPARATOR . trim(BASE_URL, '/') . str_replace('/', DIRECTORY_SEPARATOR, $u);
+        }
+    }
+    if (str_starts_with($u, '/') && !str_starts_with($u, '//')) {
+        $tryPaths[] = $root . str_replace('/', DIRECTORY_SEPARATOR, $u);
+    }
+    if (!preg_match('~^https?://~i', $u) && !str_starts_with($u, '/')) {
+        $rel = ltrim($u, '/');
+        $tryPaths[] = $root . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+        $tryPaths[] = $root . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+    }
+
+    foreach ($tryPaths as $fs) {
+        $rp = realpath($fs);
+        if ($rp !== false && is_file($rp)) {
+            $got = jb_fs_to_public_url($rp);
+            if ($got !== null) {
+                return $got;
+            }
+        }
+    }
+    return null;
+}
+
+function getCategoryImagePool(string $category): array {
+    static $cache = [];
+    $category = strtolower(trim($category));
+    if ($category === '') {
+        return [];
+    }
+    if (isset($cache[$category])) {
+        return $cache[$category];
+    }
+
+    $dir = __DIR__ . '/../assets/images/' . $category . '/';
+    if (!is_dir($dir)) {
+        return $cache[$category] = [];
+    }
+
+    $files = array_values(array_filter(scandir($dir), fn($f) => preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $f)));
+    sort($files, SORT_NATURAL | SORT_FLAG_CASE);
+
+    $cache[$category] = array_map(
+        fn($f) => BASE_URL . '/assets/images/' . $category . '/' . $f,
+        $files
+    );
+    return $cache[$category];
+}
+
+function pickCategoryImagePool(string $category, int $idx): ?string {
+    $first = strtolower(trim($category));
+    $order = array_values(array_unique(array_filter([$first, 'bijoux', 'soins', 'coffrets', 'produits', 'slider'])));
+    foreach ($order as $try) {
+        $p = getCategoryImagePool($try);
+        if (!empty($p)) {
+            return $p[$idx % count($p)];
+        }
+    }
+    return null;
+}
+
+/**
+ * Résout une URL d'image : vérifie le fichier sur disque, évite les chemins BDD faux,
+ * et utilise les images locales du dossier catégorie si l’URL externe ou le chemin ne marche pas.
+ */
+function resolveProductImageUrl(string $url, string $category, int $idx = 0): ?string {
+    $url = trim($url);
+    if (str_starts_with($url, '//')) {
+        $url = 'https:' . $url;
+    }
+
+    if (preg_match('~^([a-zA-Z]:[\\\\/]|\\\\\\\\)~', $url)) {
+        $norm = str_replace('\\', '/', $url);
+        if (preg_match('~/assets/images/(.+)$~i', $norm, $m)) {
+            $url = 'assets/images/' . $m[1];
+        } elseif (preg_match('~/([^/]+\.(jpe?g|png|webp|gif))$~i', $norm, $m)) {
+            $url = $m[1];
+        } else {
+            return pickCategoryImagePool($category, $idx);
+        }
+    }
+
+    if ($url === '') {
+        return pickCategoryImagePool($category, $idx);
+    }
+
+    if (preg_match('~^https?://~i', $url)) {
+        return pickCategoryImagePool($category, $idx) ?? $url;
+    }
+
+    $resolved = jb_try_resolve_local_image($url);
+    if ($resolved !== null) {
+        return $resolved;
+    }
+
+    return pickCategoryImagePool($category, $idx)
+        ?? (BASE_URL . '/assets/images/' . ltrim(str_replace('\\', '/', $url), '/'));
+}
+
+function getCategories(): array {
+    static $cats = null;
+    if ($cats === null) {
+        $cats = getDB()->query('SELECT * FROM categories ORDER BY sort_order ASC, id ASC')->fetchAll();
+    }
+    return $cats;
+}
+
+function getCategoryBySlug(string $slug): ?array {
+    $stmt = getDB()->prepare('SELECT * FROM categories WHERE LOWER(slug) = LOWER(?) LIMIT 1');
+    $stmt->execute([$slug]);
+    $row = $stmt->fetch();
+    return $row ?: null;
 }
 
 // ── FONCTIONS UTILISATEURS ───────────────────────────────────
@@ -199,7 +405,7 @@ function getTotalRevenue(): float {
 }
 
 // ── PROMO ────────────────────────────────────────────────────
-function validatePromoCode(string $code): ?array {
+function validatePromoCode(string $code, float $subtotal = 0): ?array {
     $stmt = getDB()->prepare(
         "SELECT * FROM promo_codes
          WHERE code = ? AND active = 1
@@ -208,17 +414,33 @@ function validatePromoCode(string $code): ?array {
          LIMIT 1"
     );
     $stmt->execute([strtoupper($code)]);
-    return $stmt->fetch() ?: null;
+    $row = $stmt->fetch();
+    if (!$row) return null;
+
+    // Schéma actuel: `discount` = pourcentage
+    $row['discount_type']  = 'percent';
+    $row['discount_value'] = (int)($row['discount'] ?? 0);
+    return $row;
 }
 
 // ── NEWSLETTER ───────────────────────────────────────────────
-function subscribeNewsletter(string $email): bool {
+function subscribeNewsletter(string $email): string|bool {
     try {
+        $email = strtolower(trim($email));
+        // Vérifier si l'email existe déjà
+        $check = getDB()->prepare('SELECT id FROM newsletter WHERE email = ? LIMIT 1');
+        $check->execute([$email]);
+        if ($check->fetch()) {
+            return 'already';
+        }
+        
         $stmt = getDB()->prepare(
-            'INSERT INTO newsletter (email) VALUES (?)
-             ON DUPLICATE KEY UPDATE subscribed = 1'
+            'INSERT INTO newsletter (email, subscribed) VALUES (?, 1)'
         );
-        return $stmt->execute([$email]);
+        if ($stmt->execute([$email])) {
+            return true;
+        }
+        return false;
     } catch (PDOException $e) {
         return false;
     }

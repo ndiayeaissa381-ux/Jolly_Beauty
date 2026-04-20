@@ -169,16 +169,17 @@ CREATE TABLE IF NOT EXISTS `settings` (
 INSERT INTO `categories` (`slug`, `name`, `label`, `sort_order`) VALUES
   ('bijoux',   'Bijoux',         'Toute la Collection', 1),
   ('soins',    'Soins & Rituels','Prendre soin de vous', 2),
-  ('coffrets', 'Coffrets',       'Idées Cadeaux',        3);
+  ('coffrets', 'Coffrets',       'Idées Cadeaux',        3),
+  ('produits', 'Produits Rituels','Rituels de beauté',   4);
 
--- Admin
+-- Comptes démo (mot de passe pour tous : demo1234 — hash bcrypt valide)
 INSERT INTO `users` (`name`, `email`, `password`, `role`) VALUES
-  ('Admin Jolly', 'admin@jollybeauty.fr', '$2y$12$eImiTXuWVxfM37uY4JANjQ==', 'admin'),
-  ('Sophie Martin','sophie@example.com', '$2y$10$4eDAlFxH5dDkRmU7bLVEau5VqCn3G3kLfCdNjI9EsIqMKVyb2nkYy', 'customer'),
-  ('Amina Kone',   'amina@example.com',  '$2y$10$4eDAlFxH5dDkRmU7bLVEau5VqCn3G3kLfCdNjI9EsIqMKVyb2nkYy', 'customer');
+  ('Admin Jolly', 'admin@jollybeauty.fr', '$2y$10$V1u.osGOtiEMq4vdObYynO6KN88RN9bIqh02PjW7avAbj6Huur68m', 'admin'),
+  ('Sophie Martin','sophie@example.com', '$2y$10$V1u.osGOtiEMq4vdObYynO6KN88RN9bIqh02PjW7avAbj6Huur68m', 'customer'),
+  ('Amina Kone',   'amina@example.com',  '$2y$10$V1u.osGOtiEMq4vdObYynO6KN88RN9bIqh02PjW7avAbj6Huur68m', 'customer');
 
--- Note : mot de passe par défaut des clients de démo = "demo1234"
--- Pour admin, utilisez la page de connexion admin et définissez un nouveau mot de passe en production.
+-- Note : mot de passe par défaut des comptes ci-dessus = demo1234
+-- Connexion admin back-office : admin / JollyBeauty2025! (voir includes/config.php ADMIN_*)
 
 -- Produits
 INSERT INTO `products` (`slug`,`category_id`,`sub`,`name`,`short`,`description`,`price`,`old_price`,`badge`,`rating`,`reviews`,`stock`,`featured`) VALUES

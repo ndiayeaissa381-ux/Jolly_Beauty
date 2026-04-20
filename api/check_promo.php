@@ -8,12 +8,11 @@ if (!$code) {
     exit;
 }
 
-$promo = validatePromoCode($code, 0); // pass 0 for min check, real check at order time
+$promo = validatePromoCode($code, 0); // Vérifier le code avec montant minimum de 0
 if ($promo) {
-    $label = $promo['discount_type'] === 'percent'
-        ? '-' . (int)$promo['discount_value'] . '%'
-        : '-' . formatPrice($promo['discount_value']);
+    $label = '-' . (int)($promo['discount_value'] ?? ($promo['discount'] ?? 0)) . '%';
     echo json_encode(['valid' => true, 'label' => $label]);
 } else {
     echo json_encode(['valid' => false]);
 }
+exit;
