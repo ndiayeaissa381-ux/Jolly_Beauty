@@ -18,6 +18,18 @@ define('ADMIN_PASS_PLAIN', 'JollyBeauty2025!');
 // ── APP ──────────────────────────────────────────────────────
 /** Chemin URL du dossier du site sous DOCUMENT_ROOT (ex. /Jolly_Beauty ou vide si vhost à la racine). */
 function jb_detect_base_url(): string {
+    // 1) Détection la plus fiable côté WAMP: partir du chemin URL exécuté.
+    // Exemple: /Jolly2/Jolly_Beauty/admin/index.php -> /Jolly2/Jolly_Beauty
+    $script = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+    $script = str_replace('\\', '/', $script);
+    if ($script !== '') {
+        $appDir = basename(str_replace('\\', '/', (string)realpath(__DIR__ . '/..')));
+        if ($appDir !== '' && preg_match('~^(.*?/' . preg_quote($appDir, '~') . ')(?:/.*)?$~', $script, $m)) {
+            return $m[1];
+        }
+    }
+
+    // 2) Fallback: tentative via DOCUMENT_ROOT + realpath (utile en vhost)
     $doc = $_SERVER['DOCUMENT_ROOT'] ?? '';
     if ($doc === '') {
         return '/Jolly_Beauty';
@@ -115,7 +127,13 @@ function sanitize(string $s): string {
 }
 
 // ── FONCTIONS PRODUITS ───────────────────────────────────────
-function getProducts(?string $cat = null, string $query = '', string $sort = 'default', int $limit = 100): array {
+function getProducts(
+    ?string $cat = null,
+    string $query = '',
+    string $sort = 'default',
+    int $limit = 100,
+    bool $includeInactive = false
+): array {
     $db  = getDB();
     $sql = "SELECT p.*, c.slug AS category,
                    GROUP_CONCAT(DISTINCT pi.url ORDER BY pi.sort_order SEPARATOR '||') AS img_list,
@@ -126,8 +144,12 @@ function getProducts(?string $cat = null, string $query = '', string $sort = 'de
             LEFT JOIN product_images pi ON pi.product_id = p.id
             LEFT JOIN product_materials pm ON pm.product_id = p.id
             LEFT JOIN product_sizes ps ON ps.product_id = p.id
-            WHERE p.active = 1";
+            WHERE 1=1";
     $params = [];
+
+    if (!$includeInactive) {
+        $sql .= ' AND p.active = 1';
+    }
 
     if ($cat && $cat !== 'all') {
         $sql    .= ' AND LOWER(c.slug) = LOWER(?)';

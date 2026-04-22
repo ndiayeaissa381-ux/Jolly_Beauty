@@ -230,14 +230,24 @@ include __DIR__ . '/../includes/header.php';
   </section>
 
   <?php
+  // On définit le dossier où se trouvent tes fichiers extra
+  $partialsPath = __DIR__ . '/../includes/partials/';
+
   if ($slug === 'bijoux') {
-      include __DIR__ . '/../includes/partials/category-extra-bijoux.php';
+      $extraFile = $partialsPath . 'category-extra-bijoux.php';
   } elseif ($slug === 'soins') {
-      include __DIR__ . '/includes/partials/category-extra-soins.php';
+      $extraFile = $partialsPath . 'category-extra-soins.php';
   } elseif ($slug === 'coffrets') {
-      include __DIR__ . '/includes/partials/category-extra-coffrets.php';
+      $extraFile = $partialsPath . 'category-extra-coffrets.php';
+  } else {
+      $extraFile = null;
   }
-?>
+
+  // Vérification de sécurité pour éviter l'erreur si le fichier manque
+  if ($extraFile && file_exists($extraFile)) {
+      include $extraFile;
+  }
+  ?>
 </div>
 
 <script>window.JB_CATEGORY_SLUG=<?= json_encode($slug, JSON_UNESCAPED_UNICODE) ?>;</script>

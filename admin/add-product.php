@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
+$jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
 
 if (!isAdmin()) {
     header('Location: index.php');
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
                 if (in_array($ext, ['jpg','jpeg','png','webp','gif'], true)) {
                     $filename = $slug . '-' . time() . '.' . $ext;
                     if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
-                        $url = '/Jolly_Beauty/assets/images/uploads/' . $filename;
+                        $url = BASE_URL . '/assets/images/uploads/' . $filename;
                         $imgStmt = $db->prepare('INSERT INTO product_images (product_id,url,sort_order) VALUES (?,?,0)');
                         $imgStmt->execute([$productId, $url]);
                     }
@@ -157,19 +158,19 @@ $categories = $db->query('SELECT * FROM categories ORDER BY sort_order')->fetchA
     <div class="sb-logo"><div class="wm">Jolly Beauty</div><div class="tg">Administration</div></div>
     <nav class="sb-nav">
       <div class="ns">Principal</div>
-      <a href="/Jolly_Beauty/admin/index.php?page=dashboard" class="ni"><span class="ic">▣</span> Tableau de bord</a>
-      <a href="/Jolly_Beauty/admin/index.php?page=orders" class="ni"><span class="ic">📦</span> Commandes</a>
-      <a href="/Jolly_Beauty/admin/index.php?page=products" class="ni"><span class="ic">💎</span> Produits</a>
-      <a href="/Jolly_Beauty/admin/add-product.php" class="ni active"><span class="ic">＋</span> Ajouter produit</a>
-      <a href="/Jolly_Beauty/admin/index.php?page=users" class="ni"><span class="ic">👥</span> Clients</a>
-      <a href="/Jolly_Beauty/admin/index.php?page=promo" class="ni"><span class="ic">🏷</span> Codes promo</a>
+      <a href="<?= $jbBase ?>/admin/index.php?page=dashboard" class="ni"><span class="ic">▣</span> Tableau de bord</a>
+      <a href="<?= $jbBase ?>/admin/index.php?page=orders" class="ni"><span class="ic">📦</span> Commandes</a>
+      <a href="<?= $jbBase ?>/admin/index.php?page=products" class="ni"><span class="ic">💎</span> Produits</a>
+      <a href="<?= $jbBase ?>/admin/add-product.php" class="ni active"><span class="ic">＋</span> Ajouter produit</a>
+      <a href="<?= $jbBase ?>/admin/index.php?page=users" class="ni"><span class="ic">👥</span> Clients</a>
+      <a href="<?= $jbBase ?>/admin/index.php?page=promo" class="ni"><span class="ic">🏷</span> Codes promo</a>
       <div class="ns">Boutique</div>
-      <a href="/Jolly_Beauty/index.php" target="_blank" class="ni"><span class="ic">🌐</span> Voir le site</a>
-      <a href="/Jolly_Beauty/category.php?c=all" target="_blank" class="ni"><span class="ic">🛍</span> La boutique</a>
+      <a href="<?= $jbBase ?>/index.php" target="_blank" class="ni"><span class="ic">🌐</span> Voir le site</a>
+      <a href="<?= $jbBase ?>/category.php?c=all" target="_blank" class="ni"><span class="ic">🛍</span> La boutique</a>
     </nav>
     <div class="sb-bot">
       <div class="sb-user"><div class="sb-av">A</div><div><div style="color:#fff;font-weight:600;font-size:.8rem">Admin</div><div>Jolly Beauty</div></div></div>
-      <a href="/Jolly_Beauty/admin/index.php?logout=1" class="ni" style="color:rgba(255,255,255,.45)"><span class="ic">🚪</span> Déconnexion</a>
+      <a href="<?= $jbBase ?>/admin/index.php?logout=1" class="ni" style="color:rgba(255,255,255,.45)"><span class="ic">🚪</span> Déconnexion</a>
     </div>
   </aside>
 
@@ -177,8 +178,8 @@ $categories = $db->query('SELECT * FROM categories ORDER BY sort_order')->fetchA
     <div class="tb">
       <div class="tb-title">Ajouter un produit</div>
       <div class="tb-r">
-        <a href="/Jolly_Beauty/index.php" target="_blank" class="tbtn t-ghost">🌐 Voir le site</a>
-        <a href="/Jolly_Beauty/admin/index.php?page=products" class="tbtn t-rose">← Retour aux produits</a>
+        <a href="<?= $jbBase ?>/index.php" target="_blank" class="tbtn t-ghost">🌐 Voir le site</a>
+        <a href="<?= $jbBase ?>/admin/index.php?page=products" class="tbtn t-rose">← Retour aux produits</a>
       </div>
     </div>
 

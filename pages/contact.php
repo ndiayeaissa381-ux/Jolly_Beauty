@@ -9,6 +9,23 @@ $extraCss  = '<link rel="stylesheet" href="' . $jbBase . '/assets/css/static-pag
 $error   = '';
 $success = '';
 
+$prefSubject = '';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $raw = strtolower(trim((string)($_GET['subject'] ?? '')));
+    $map = [
+        'commande' => 'commande',
+        'order'    => 'commande',
+        'produit'  => 'produit',
+        'product'  => 'produit',
+        'retour'   => 'retour',
+        'return'   => 'retour',
+        'autre'    => 'autre',
+    ];
+    if (isset($map[$raw])) {
+        $prefSubject = $map[$raw];
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_form'])) {
     $name    = trim((string) ($_POST['name'] ?? ''));
     $email   = trim((string) ($_POST['email'] ?? ''));
@@ -90,10 +107,10 @@ include __DIR__ . '/../includes/header.php';
           <label for="c_subject">Sujet *</label>
           <select id="c_subject" name="subject" required>
             <option value="">Choisissez…</option>
-            <option value="commande" <?= (($_POST['subject'] ?? '') === 'commande') ? 'selected' : '' ?>>Commande</option>
-            <option value="produit" <?= (($_POST['subject'] ?? '') === 'produit') ? 'selected' : '' ?>>Produit</option>
-            <option value="retour" <?= (($_POST['subject'] ?? '') === 'retour') ? 'selected' : '' ?>>Retour / échange</option>
-            <option value="autre" <?= (($_POST['subject'] ?? '') === 'autre') ? 'selected' : '' ?>>Autre</option>
+            <option value="commande" <?= (($_POST['subject'] ?? $prefSubject) === 'commande') ? 'selected' : '' ?>>Commande</option>
+            <option value="produit" <?= (($_POST['subject'] ?? $prefSubject) === 'produit') ? 'selected' : '' ?>>Produit</option>
+            <option value="retour" <?= (($_POST['subject'] ?? $prefSubject) === 'retour') ? 'selected' : '' ?>>Retour / échange</option>
+            <option value="autre" <?= (($_POST['subject'] ?? $prefSubject) === 'autre') ? 'selected' : '' ?>>Autre</option>
           </select>
         </div>
         <div class="sp-field">

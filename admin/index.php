@@ -1,12 +1,35 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
+$jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
+
+// ── AUTO-LOGIN ADMIN via compte utilisateur (role=admin) ───────
+// Permet d'accéder à l'admin si l'utilisateur connecté est admin en base.
+if (!isAdmin() && isLoggedIn()) {
+    $uid = (int)($_SESSION['jb_user']['id'] ?? 0);
+    if ($uid > 0) {
+        try {
+            $stmt = getDB()->prepare('SELECT role FROM users WHERE id=? LIMIT 1');
+            $stmt->execute([$uid]);
+            $role = (string)($stmt->fetchColumn() ?: '');
+            if (strtolower($role) === 'admin') {
+                $_SESSION['jb_admin'] = true;
+                header('Location: ' . APP_URL . '/admin/index.php', true, 302);
+                exit;
+            }
+        } catch (Throwable $e) {
+            // En cas d'erreur DB, on ne bloque pas l'accès au formulaire admin classique
+        }
+    }
+}
 
 // ── LOGIN ─────────────────────────────────────────────────────
 if (!isAdmin()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_login'])) {
         if ($_POST['username'] === ADMIN_USER && $_POST['password'] === ADMIN_PASS_PLAIN) {
             $_SESSION['jb_admin'] = true;
-            header('Location: ' . $_SERVER['PHP_SELF']); exit;
+         C   // Toujours revenir sur l'URL "canonique" de l'admin
+            header('Location: ' . APP_URL . '/admin/index.php', true, 302);
+            exit;
         }
         $loginError = 'Identifiants incorrects.';
     }
@@ -26,7 +49,11 @@ if (!isAdmin()) {
     </div></body></html><?php exit;
 }
 
-if (isset($_GET['logout'])) { unset($_SESSION['jb_admin']); header('Location: ' . $_SERVER['PHP_SELF']); exit; }
+if (isset($_GET['logout'])) {
+    unset($_SESSION['jb_admin']);
+    header('Location: ' . APP_URL . '/admin/index.php', true, 302);
+    exit;
+}
 
 $db = getDB();
 $msg = ''; $msgType = 'success';
@@ -82,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['product_image']) && 
     if (in_array($ext, ['jpg','jpeg','png','webp','gif'])) {
         $filename = 'product_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         if (move_uploaded_file($_FILES['product_image']['tmp_name'], $uploadDir . $filename)) {
-            echo json_encode(['success'=>true,'url'=>'/Jolly_Beauty/assets/images/uploads/'.$filename]);
+            echo json_encode(['success'=>true,'url'=> BASE_URL . '/assets/images/uploads/' . $filename]);
         } else { echo json_encode(['success'=>false,'error'=>'Erreur déplacement fichier']); }
     } else { echo json_encode(['success'=>false,'error'=>'Format non autorisé']); }
     exit;
@@ -174,7 +201,8 @@ $salesByCat = $db->query(
      GROUP BY c.id ORDER BY rev DESC"
 )->fetchAll();
 
-$products   = getProducts(null,'','default',500);
+// Admin: montrer aussi les produits inactifs (sinon l'admin peut sembler "vide" alors que le site affiche des vignettes statiques)
+$products   = getProducts(null, '', 'default', 500, true);
 $categories = $db->query('SELECT * FROM categories ORDER BY sort_order')->fetchAll();
 $orders     = getOrders(50);
 
@@ -373,12 +401,12 @@ tbody tr:hover{background:rgba(253,244,246,.5)}
       <?php if ($pendingOrders > 0): ?><span class="nb"><?= $pendingOrders ?></span><?php endif; ?>
     </a>
     <a href="?page=products"  class="ni <?= $section==='products'?'active':'' ?>"><span class="ic">💎</span> Produits <span style="margin-left:auto;font-size:.65rem;color:rgba(255,255,255,.4)"><?= $totalProducts ?></span></a>
-    <a href="/Jolly_Beauty/admin/add-product.php" class="ni"><span class="ic">＋</span> Ajouter produit</a>
+    <a href="<?= $jbBase ?>/admin/add-product.php" class="ni"><span class="ic">＋</span> Ajouter produit</a>
     <a href="?page=users"     class="ni <?= $section==='users'?'active':'' ?>"><span class="ic">👥</span> Clients</a>
     <a href="?page=promo"     class="ni <?= $section==='promo'?'active':'' ?>"><span class="ic">🏷</span> Codes promo</a>
     <div class="ns">Boutique</div>
-    <a href="/Jolly_Beauty/index.php"    target="_blank" class="ni"><span class="ic">🌐</span> Voir le site</a>
-    <a href="/Jolly_Beauty/category.php?c=all" target="_blank" class="ni"><span class="ic">🛍</span> La boutique</a>
+    <a href="<?= $jbBase ?>/index.php"    target="_blank" class="ni"><span class="ic">🌐</span> Voir le site</a>
+    <a href="<?= $jbBase ?>/category.php?c=all" target="_blank" class="ni"><span class="ic">🛍</span> La boutique</a>
   </nav>
   <div class="sb-bot">
     <div class="sb-user"><div class="sb-av">A</div><div><div style="color:#fff;font-weight:600;font-size:.8rem">Admin</div><div>Jolly Beauty</div></div></div>
@@ -390,8 +418,8 @@ tbody tr:hover{background:rgba(253,244,246,.5)}
   <div class="tb">
     <div class="tb-title"><?php $ts=['dashboard'=>'Tableau de bord','products'=>'Produits','orders'=>'Commandes','users'=>'Clients','promo'=>'Codes promo']; echo $ts[$section]??'Admin'; ?></div>
     <div class="tb-r">
-      <?php if ($section==='products'): ?><a href="/Jolly_Beauty/admin/add-product.php" class="tbtn t-rose">＋ Ajouter un produit</a><?php endif; ?>
-      <a href="/Jolly_Beauty/index.php" target="_blank" class="tbtn t-ghost">🌐 Voir le site</a>
+      <?php if ($section==='products'): ?><a href="<?= $jbBase ?>/admin/add-product.php" class="tbtn t-rose">＋ Ajouter un produit</a><?php endif; ?>
+      <a href="<?= $jbBase ?>/index.php" target="_blank" class="tbtn t-ghost">🌐 Voir le site</a>
     </div>
   </div>
 
@@ -488,7 +516,13 @@ tbody tr:hover{background:rgba(253,244,246,.5)}
       </div>
       <form method="POST" id="pform" enctype="multipart/form-data">
         <input type="hidden" name="product_id" value="<?= (int)($editProduct['id']??0) ?>">
-        <input type="hidden" name="images" id="img-field" value="<?= htmlspecialchars($editProduct['img_list']??'') ?>">
+        <?php
+          // Important: dans un attribut HTML, les sauts de ligne peuvent être normalisés,
+          // ce qui "casse" la liste d'URLs et empêche la mise à jour des images.
+          $imgListAttr = htmlspecialchars((string)($editProduct['img_list'] ?? ''), ENT_QUOTES, 'UTF-8');
+          $imgListAttr = str_replace("\n", '&#10;', $imgListAttr);
+        ?>
+        <input type="hidden" name="images" id="img-field" value="<?= $imgListAttr ?>">
         <div class="fg2">
 
           <div class="fg full" style="flex-direction:row;gap:24px;padding:4px 0 10px;border-bottom:1px solid var(--border)">
@@ -592,7 +626,9 @@ tbody tr:hover{background:rgba(253,244,246,.5)}
       <div class="tw"><table>
         <thead><tr><th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Statut</th><th>Actions</th></tr></thead>
         <tbody id="ptbl">
-        <?php if(empty($products)):?><tr><td colspan="7"><div class="empty"><div class="empty-i">💎</div><p>Aucun produit — cliquez sur « Ajouter ».</p></div></td></tr><?php endif;?>
+        <?php if(empty($products)):?><tr><td colspan="7"><div class="empty"><div class="empty-i">💎</div>
+          <p><strong>Aucun produit en base.</strong> L’accueil peut quand même afficher des images “démo” (hors BDD) — importez <code>database.sql</code> (phpMyAdmin) ou créez un produit via « ＋ Ajouter un produit ».</p>
+        </div></td></tr><?php endif;?>
         <?php foreach($products as $p): $img=!empty($p['images'])?$p['images'][0]:null; ?>
         <tr class="pr" data-n="<?= strtolower(htmlspecialchars($p['name'])) ?>">
           <td><?php if($img):?><img src="<?= htmlspecialchars($img) ?>" class="ti" loading="lazy"><?php else:?><div class="tp">🌸</div><?php endif;?></td>
@@ -612,7 +648,7 @@ tbody tr:hover{background:rgba(253,244,246,.5)}
             <?php else:?><span style="display:flex;align-items:center;gap:6px"><span class="dot dm"></span>Inactif</span><?php endif;?>
           </td>
           <td><div style="display:flex;gap:5px">
-            <a href="/Jolly_Beauty/product.php?slug=<?= urlencode($p['slug']) ?>" target="_blank" class="ab av" title="Voir">👁</a>
+            <a href="<?= $jbBase ?>/product.php?slug=<?= urlencode($p['slug']) ?>" target="_blank" class="ab av" title="Voir">👁</a>
             <a href="?section=products&edit_product=<?= $p['id'] ?>" class="ab ae" title="Modifier">✏️</a>
             <a href="?section=products&delete_product=<?= $p['id'] ?>" class="ab ad" title="Supprimer" onclick="return confirm('Supprimer «<?= addslashes(htmlspecialchars($p['name'])) ?>» ? Action irréversible.')">🗑</a>
           </div></td>

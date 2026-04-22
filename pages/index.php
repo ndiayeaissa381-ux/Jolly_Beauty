@@ -303,11 +303,14 @@ $slideImgs = !empty($allImgs) ? $allImgs : ['hero-1.jpg', 'hero-2.jpg', 'hero-3.
     ?>
     <div class="product-card" data-reveal data-reveal-delay="<?= $i % 4 ?>">
       <div class="product-card__img-wrap">
-        <?php if ($img): ?><img src="<?= htmlspecialchars($img) ?>" alt="<?= sanitize($p['name']) ?>" loading="lazy"><?php else: ?><div style="width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.3">🌸</div><?php endif; ?>
-        <?php if (!empty($p['badge'])): ?><span class="product-card__badge"><?= sanitize($p['badge']) ?></span><?php endif; ?>
-        <div class="product-card__actions">
-          <button class="card-action-btn" title="Aperçu" onclick="window.location='<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/product.php?slug=<?= urlencode($p['slug']) ?>'">👁</button>
-          <button class="card-action-btn" title="Favoris">♡</button>
+        <?php $pHref = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/product.php?slug=' . urlencode($p['slug']); ?>
+        <a href="<?= $pHref ?>" class="product-card__media" style="display:block;height:100%;position:relative;z-index:1" aria-label="<?= sanitize($p['name']) ?> — voir le produit">
+          <?php if ($img): ?><img src="<?= htmlspecialchars($img) ?>" alt="<?= sanitize($p['name']) ?>" loading="lazy"><?php else: ?><div style="width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.3">🌸</div><?php endif; ?>
+        </a>
+        <?php if (!empty($p['badge'])): ?><span class="product-card__badge" style="z-index:3"><?= sanitize($p['badge']) ?></span><?php endif; ?>
+        <div class="product-card__actions" style="z-index:4">
+          <button class="card-action-btn" type="button" title="Aperçu" onclick="window.location='<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/product.php?slug=<?= urlencode($p['slug']) ?>'">👁</button>
+          <button class="card-action-btn" type="button" title="Favoris">♡</button>
         </div>
       </div>
       <div class="product-card__body">
@@ -344,15 +347,30 @@ $slideImgs = !empty($allImgs) ? $allImgs : ['hero-1.jpg', 'hero-2.jpg', 'hero-3.
       $bijouxImages = ['bague-coeur-douceur.jpg', 'bracelet-charms-eclat.jpg', 'bijoux-bague-1.jpg', 'bijoux-bague-2.jpg', 'bijoux-bracelet-1.jpg', 'bijoux-bracelet-2.jpg', 'bijoux-collier-1.jpg', 'bijoux-collier-2.jpg'];
       $bijouxNames = ['Bague Cœur Douceur', 'Bracelet Charms Éclat', 'Bague Élégance', 'Bague Classic', 'Bracelet Modern', 'Bracelet Chic', 'Collier Précieux', 'Collier Deluxe'];
       $bijouxPrices = [89, 65, 95, 79, 120, 85, 145, 165];
+      // Slugs BDD (les 2 premiers = démo importée ; le reste = fiches correspondantes en boutique)
+      $bijouxSlugs = [
+        'bague-coeur-douceur',
+        'bracelet-charms-eclat',
+        'bague-coeur-douceur',
+        'bague-coeur-douceur',
+        'bracelet-stack-amour',
+        'bracelet-stack-amour',
+        'collier-lumiere',
+        'collier-lumiere',
+      ];
       
       foreach ($bijouxImages as $i => $img): 
+        $bSlug = $bijouxSlugs[$i] ?? 'bracelet-charms-eclat';
+        $bHref = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/product.php?slug=' . urlencode($bSlug);
       ?>
         <div class="product-card">
-          <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($bijouxNames[$i]) ?>" class="product-img">
-          <div class="product-cat">Bijoux</div>
-          <h3 class="product-name"><?= htmlspecialchars($bijouxNames[$i]) ?></h3>
+          <a href="<?= $bHref ?>" class="product-card__link" style="display:block;color:inherit;text-decoration:none">
+            <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($bijouxNames[$i]) ?>" class="product-img">
+            <div class="product-cat">Bijoux</div>
+            <h3 class="product-name"><?= htmlspecialchars($bijouxNames[$i]) ?></h3>
+          </a>
           <div class="product-price"><?= number_format($bijouxPrices[$i], 2, ',', ' ') ?> €</div>
-          <button class="btn btn-outline" onclick='addToCart(
+          <button class="btn btn-outline" type="button" onclick='event.stopPropagation(); addToCart(
             <?= 100 + $i ?>,
             "<?= addslashes($bijouxNames[$i]) ?>",
             <?= $bijouxPrices[$i] ?>,
@@ -372,15 +390,26 @@ $slideImgs = !empty($allImgs) ? $allImgs : ['hero-1.jpg', 'hero-2.jpg', 'hero-3.
       $soinsImages = ['beurre-karite-fouette.jpeg', 'huile-corps-nourrissante.jpeg', 'soin-corps-2.jpg', 'serum-visage-antioxydant.jpeg', 'masque-detox-visage.jpeg'];
       $soinsNames = ['Beurre de Karité Fouetté', 'Huile Corps Nourrissante', 'Soin Corps Hydratant', 'Sérum Visage Antioxydant', 'Masque Détox Visage'];
       $soinsPrices = [45, 38, 42, 55, 35];
+      $soinsSlugs = [
+        'beurre-karite-fouette',
+        'beurre-karite-fouette',
+        'beurre-karite-fouette',
+        'beurre-karite-fouette',
+        'beurre-karite-fouette',
+      ];
       
       foreach ($soinsImages as $i => $img): 
+        $sSlug = $soinsSlugs[$i] ?? 'beurre-karite-fouette';
+        $sHref = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/product.php?slug=' . urlencode($sSlug);
       ?>
         <div class="product-card">
-          <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/produits/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($soinsNames[$i]) ?>" class="product-img">
-          <div class="product-cat">Soins</div>
-          <h3 class="product-name"><?= htmlspecialchars($soinsNames[$i]) ?></h3>
+          <a href="<?= $sHref ?>" class="product-card__link" style="display:block;color:inherit;text-decoration:none">
+            <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/produits/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($soinsNames[$i]) ?>" class="product-img">
+            <div class="product-cat">Soins</div>
+            <h3 class="product-name"><?= htmlspecialchars($soinsNames[$i]) ?></h3>
+          </a>
           <div class="product-price"><?= number_format($soinsPrices[$i], 2, ',', ' ') ?> €</div>
-          <button class="btn btn-outline" onclick='addToCart(
+          <button class="btn btn-outline" type="button" onclick='event.stopPropagation(); addToCart(
             <?= 200 + $i ?>,
             "<?= addslashes($soinsNames[$i]) ?>",
             <?= $soinsPrices[$i] ?>,
@@ -400,15 +429,24 @@ $slideImgs = !empty($allImgs) ? $allImgs : ['hero-1.jpg', 'hero-2.jpg', 'hero-3.
       $coffretsImages = ['coffret-luxe.jpg', 'coffret-prestige-1.jpg', 'coffret-prestige-2.jpg'];
       $coffretsNames = ['Coffret Luxe', 'Coffret Prestige Or', 'Coffret Prestige Argent'];
       $coffretsPrices = [125, 185, 165];
+      $coffretsSlugs = [
+        'coffret-rituel-douceur',
+        'coffret-rituel-douceur',
+        'coffret-rituel-douceur',
+      ];
       
       foreach ($coffretsImages as $i => $img): 
+        $cSlug = $coffretsSlugs[$i] ?? 'coffret-rituel-douceur';
+        $cHref = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/product.php?slug=' . urlencode($cSlug);
       ?>
         <div class="product-card">
-          <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/coffrets/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($coffretsNames[$i]) ?>" class="product-img">
-          <div class="product-cat">Coffrets</div>
-          <h3 class="product-name"><?= htmlspecialchars($coffretsNames[$i]) ?></h3>
+          <a href="<?= $cHref ?>" class="product-card__link" style="display:block;color:inherit;text-decoration:none">
+            <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/coffrets/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($coffretsNames[$i]) ?>" class="product-img">
+            <div class="product-cat">Coffrets</div>
+            <h3 class="product-name"><?= htmlspecialchars($coffretsNames[$i]) ?></h3>
+          </a>
           <div class="product-price"><?= number_format($coffretsPrices[$i], 2, ',', ' ') ?> €</div>
-          <button class="btn btn-outline" onclick='addToCart(
+          <button class="btn btn-outline" type="button" onclick='event.stopPropagation(); addToCart(
             <?= 300 + $i ?>,
             "<?= addslashes($coffretsNames[$i]) ?>",
             <?= $coffretsPrices[$i] ?>,
@@ -428,15 +466,24 @@ $slideImgs = !empty($allImgs) ? $allImgs : ['hero-1.jpg', 'hero-2.jpg', 'hero-3.
       $produitsImages = ['ritual-beaute-1.jpg', 'ritual-beaute-2.jpg', 'gommage-doux-corps.jpeg'];
       $produitsNames = ['Huile Précieuse', 'Rituel Beauté Complet', 'Gommage Doux Corps'];
       $produitsPrices = [65, 85, 75];
+      $produitsSlugs = [
+        'beurre-karite-fouette',
+        'coffret-rituel-douceur',
+        'beurre-karite-fouette',
+      ];
       
       foreach ($produitsImages as $i => $img): 
+        $pSlug = $produitsSlugs[$i] ?? 'beurre-karite-fouette';
+        $pHref = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/product.php?slug=' . urlencode($pSlug);
       ?>
         <div class="product-card">
-          <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/produits/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($produitsNames[$i]) ?>" class="product-img">
-          <div class="product-cat">Rituels</div>
-          <h3 class="product-name"><?= htmlspecialchars($produitsNames[$i]) ?></h3>
+          <a href="<?= $pHref ?>" class="product-card__link" style="display:block;color:inherit;text-decoration:none">
+            <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/produits/<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($produitsNames[$i]) ?>" class="product-img">
+            <div class="product-cat">Rituels</div>
+            <h3 class="product-name"><?= htmlspecialchars($produitsNames[$i]) ?></h3>
+          </a>
           <div class="product-price"><?= number_format($produitsPrices[$i], 2, ',', ' ') ?> €</div>
-          <button class="btn btn-outline" onclick='addToCart(
+          <button class="btn btn-outline" type="button" onclick='event.stopPropagation(); addToCart(
             <?= 400 + $i ?>,
             "<?= addslashes($produitsNames[$i]) ?>",
             <?= $produitsPrices[$i] ?>,

@@ -16,6 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user  = getUserByEmail($email);
     if ($user && password_verify($pass, $user['password'])) {
       $_SESSION['jb_user'] = ['id'=>$user['id'],'name'=>$user['name'],'email'=>$user['email']];
+       // Si l'utilisateur est admin en base, ouvrir l'espace admin
+      if (!empty($user['role']) && strtolower((string)$user['role']) === 'admin') {
+        $_SESSION['jb_admin'] = true;
+        header('Location: ' . APP_URL . '/admin/index.php', true, 302);
+        exit;
+      }
       header('Location: ' . BASE_URL . '/login.php');
       exit;
     } else {
@@ -326,26 +332,26 @@ $pageTitle = $mode === 'register' ? 'Créer un compte — Jolly Beauty' : 'Conne
         <div class="dash-card-title">Mes Favoris</div>
         <p class="dash-card-desc">Retrouvez les pièces que vous avez sauvegardées.</p>
       </a>
-      <div class="dash-card">
+      <a href="<?= $jbBase ?>/pages/profile.php" class="dash-card">
         <span class="dash-card-icon">⚙️</span>
         <div class="dash-card-title">Mon Profil</div>
         <p class="dash-card-desc">Gérez vos informations personnelles et préférences.</p>
-      </div>
+      </a>
       <a href="<?= $jbBase ?>/bijoux.php" class="dash-card">
         <span class="dash-card-icon">💍</span>
         <div class="dash-card-title">Bijoux</div>
         <p class="dash-card-desc">Découvrez nos nouvelles collections de bijoux délicats.</p>
       </a>
-      <div class="dash-card">
+      <a href="<?= $jbBase ?>/pages/promo.php" class="dash-card">
         <span class="dash-card-icon">🎁</span>
         <div class="dash-card-title">Mon Code Promo</div>
         <p class="dash-card-desc"><strong style="color:var(--rose-deep)">BIENVENUE10</strong> — −10% sur votre prochaine commande.</p>
-      </div>
-      <div class="dash-card">
+      </a>
+      <a href="<?= $jbBase ?>/pages/support.php" class="dash-card">
         <span class="dash-card-icon">💌</span>
         <div class="dash-card-title">Support</div>
         <p class="dash-card-desc">Disponible du lundi au vendredi, 9h–18h.<br>contact@jollybeauty.fr</p>
-      </div>
+      </a>
     </div>
   </div>
 </div>
@@ -413,7 +419,7 @@ $pageTitle = $mode === 'register' ? 'Créer un compte — Jolly Beauty' : 'Conne
         <div class="auth-field">
           <label class="auth-label">
             Mot de passe
-            <a href="#">Oublié ?</a>
+            <a href="<?= $jbBase ?>/contact.php?subject=autre">Oublié ?</a>
           </label>
           <input type="password" name="password" class="auth-input" placeholder="Votre mot de passe" required>
         </div>
@@ -452,7 +458,7 @@ $pageTitle = $mode === 'register' ? 'Créer un compte — Jolly Beauty' : 'Conne
       </form>
       <div class="auth-switch">
         Déjà un compte ?
-        <a href="/Jolly_Beauty/login.php?mode=login">Se connecter →</a>
+        <a href="<?= $jbBase ?>/login.php?mode=login">Se connecter →</a>
       </div>
       <?php endif; ?>
 

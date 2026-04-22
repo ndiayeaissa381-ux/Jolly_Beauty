@@ -1,7 +1,7 @@
 <?php
-$pageTitle = 'Galerie Média - Jolly Beauty';
 require_once __DIR__ . '/../includes/config.php';
-include __DIR__ . '/../includes/footer.php';
+$pageTitle = 'Galerie Média - Jolly Beauty';
+include __DIR__ . '/../includes/header.php';
 ?>
 
 <!-- HERO SECTION -->
@@ -257,6 +257,8 @@ include __DIR__ . '/../includes/footer.php';
   text-align: center;
   color: white;
   max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
   padding: 0 20px;
   animation: fadeInUp 1s ease-out;
 }
@@ -382,8 +384,15 @@ include __DIR__ . '/../includes/footer.php';
 /* Media Section Styles */
 .media-section {
   padding: 5rem 5%;
+}
+
+/* Conserver le background pleine largeur, contenu centré */
+.media-section > .section-head,
+.media-section > .videos-grid,
+.media-section > .category-gallery {
   max-width: 1400px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .videos-grid {
@@ -436,7 +445,7 @@ include __DIR__ . '/../includes/footer.php';
 }
 
 .video-content p {
-  color: var(--text-soft);
+  color: var(--text-soft, var(--muted));
   margin: 0;
   line-height: 1.5;
 }
@@ -456,7 +465,7 @@ include __DIR__ . '/../includes/footer.php';
 
 .gallery-category-count {
   font-size: 1rem;
-  color: var(--text-soft);
+  color: var(--text-soft, var(--muted));
   font-weight: normal;
 }
 
@@ -626,4 +635,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

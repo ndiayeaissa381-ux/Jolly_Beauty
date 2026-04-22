@@ -38,11 +38,11 @@
     <div class="footer-col">
       <h4>Aide</h4>
       <ul>
-        <li><a href="#">Guide des tailles</a></li>
-        <li><a href="#">Livraison et retours</a></li>
-        <li><a href="#">FAQ</a></li>
+        <li><a href="<?= $jbBase ?>/guide-tailles.php">Guide des tailles</a></li>
+        <li><a href="<?= $jbBase ?>/livraison-retours.php">Livraison et retours</a></li>
+        <li><a href="<?= $jbBase ?>/faq.php">FAQ</a></li>
         <li><a href="<?= $jbBase ?>/login.php">Mon compte</a></li>
-        <li><a href="#">Suivi de commande</a></li>
+        <li><a href="<?= $jbBase ?>/suivi-commande.php">Suivi de commande</a></li>
       </ul>
     </div>
 
@@ -50,7 +50,7 @@
       <h4>Contact</h4>
       <ul>
         <li><a href="mailto:contact@jollybeauty.fr">contact@jollybeauty.fr</a></li>
-        <li><a href="#">Du lundi au vendredi, de 9h à 18h</a></li>
+        <li><span style="color:rgba(255,255,255,.65)">Du lundi au vendredi, de 9h à 18h</span></li>
       </ul>
       <div style="margin-top:20px;">
         <h4 style="margin-bottom:12px;">Newsletter</h4>
@@ -65,9 +65,9 @@
   <div class="footer-bottom">
     <span>© 2026 Jolly Beauté. Tous droits réservés.</span>
     <div class="footer-legal">
-      <a href="#">Mentions légales</a>
-      <a href="#">CGV</a>
-      <a href="#">Confidentialité</a>
+      <a href="<?= $jbBase ?>/mentions-legales.php">Mentions légales</a>
+      <a href="<?= $jbBase ?>/cgv.php">CGV</a>
+      <a href="<?= $jbBase ?>/confidentialite.php">Confidentialité</a>
     </div>
   </div>
 </footer>
