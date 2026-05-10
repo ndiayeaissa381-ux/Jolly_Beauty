@@ -132,7 +132,8 @@ function getProducts(
     string $query = '',
     string $sort = 'default',
     int $limit = 100,
-    bool $includeInactive = false
+    bool $includeInactive = false,
+    bool $galleryOnly = false
 ): array {
     $db  = getDB();
     $sql = "SELECT p.*, c.slug AS category,
@@ -210,6 +211,52 @@ function getFeaturedProducts(): array {
          WHERE p.featured = 1 AND p.active = 1
          GROUP BY p.id ORDER BY p.id ASC"
     );
+    $stmt->execute();
+    return array_map('_hydrateProduct', $stmt->fetchAll());
+}
+
+function getGalleryProducts(): array {
+    $db   = getDB();
+    
+    // Vérifier si la colonne gallery_only existe
+    try {
+        $check = $db->query("SHOW COLUMNS FROM products LIKE 'gallery_only'");
+        $hasGalleryOnly = $check->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasGalleryOnly = false;
+    }
+    
+    if ($hasGalleryOnly) {
+        $stmt = $db->prepare(
+            "SELECT p.*, c.slug AS category,
+                    GROUP_CONCAT(DISTINCT pi.url ORDER BY pi.sort_order SEPARATOR '||') AS img_list,
+                    GROUP_CONCAT(DISTINCT pm.value ORDER BY pm.sort_order SEPARATOR '||') AS mat_list,
+                    GROUP_CONCAT(DISTINCT ps.value ORDER BY ps.sort_order SEPARATOR '||') AS size_list
+             FROM products p
+             JOIN categories c ON c.id = p.category_id
+             LEFT JOIN product_images pi ON pi.product_id = p.id
+             LEFT JOIN product_materials pm ON pm.product_id = p.id
+             LEFT JOIN product_sizes ps ON ps.product_id = p.id
+             WHERE p.active = 1 AND (p.gallery_only = 1 OR p.featured = 1)
+             GROUP BY p.id ORDER BY p.gallery_only DESC, p.featured DESC, p.id ASC"
+        );
+    } else {
+        // Version temporaire sans la colonne gallery_only
+        $stmt = $db->prepare(
+            "SELECT p.*, c.slug AS category,
+                    GROUP_CONCAT(DISTINCT pi.url ORDER BY pi.sort_order SEPARATOR '||') AS img_list,
+                    GROUP_CONCAT(DISTINCT pm.value ORDER BY pm.sort_order SEPARATOR '||') AS mat_list,
+                    GROUP_CONCAT(DISTINCT ps.value ORDER BY ps.sort_order SEPARATOR '||') AS size_list
+             FROM products p
+             JOIN categories c ON c.id = p.category_id
+             LEFT JOIN product_images pi ON pi.product_id = p.id
+             LEFT JOIN product_materials pm ON pm.product_id = p.id
+             LEFT JOIN product_sizes ps ON ps.product_id = p.id
+             WHERE p.active = 1 AND p.featured = 1
+             GROUP BY p.id ORDER BY p.featured DESC, p.id ASC"
+        );
+    }
+    
     $stmt->execute();
     return array_map('_hydrateProduct', $stmt->fetchAll());
 }

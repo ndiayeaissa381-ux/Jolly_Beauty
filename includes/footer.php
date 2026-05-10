@@ -26,7 +26,7 @@
     <div class="footer-col">
       <h4>Collections</h4>
       <ul>
-        <li><a href="<?= $jbBase ?>/category.php?c=all">Toute la collection</a></li>
+        <li><a href="<?= $jbBase ?>/bijoux.php">Toute la collection</a></li>
         <li><a href="<?= $jbBase ?>/bijoux.php">Bijoux</a></li>
         <li><a href="<?= $jbBase ?>/soins-rituels.php">Soins &amp; Rituels</a></li>
         <li><a href="<?= $jbBase ?>/coffrets.php">Coffrets Cadeaux</a></li>
@@ -72,7 +72,10 @@
   </div>
 </footer>
 
-<script>window.JB_BASE=<?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;</script>
+<script>
+window.JB_BASE=<?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;
+window.IS_LOGGED_IN = <?= isLoggedIn() ? 'true' : 'false' ?>;
+</script>
 <script src="<?= $jbBase ?>/assets/js/script.js"></script>
 
 <script>

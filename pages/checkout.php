@@ -220,12 +220,14 @@ $total = $subtotal + $shipping;
 .order-summary-card{background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(44,26,29,.06);border:1px solid rgba(242,167,176,.18);padding:28px;position:sticky;top:24px;}
 .order-summary-card h2{font-family:'Playfair Display',var(--font-serif,serif);font-size:1.1rem;color:var(--c-dark,#2C1A1D);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0ebe3;}
 .summary-items{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
-.summary-item{display:flex;align-items:center;gap:12px;}
+.summary-item{display:flex;align-items:center;gap:12px;position:relative;}
 .summary-item img{width:52px;height:52px;object-fit:cover;border-radius:10px;background:#f5f0ea;}
 .summary-item-info{flex:1;}
 .summary-item-info .name{font-size:.9rem;font-weight:600;color:var(--c-dark,#2C1A1D);}
 .summary-item-info .qty{font-size:.78rem;color:var(--c-muted,#A07880);}
 .summary-item-price{font-size:.92rem;font-weight:700;color:var(--c-dark,#2C1A1D);}
+.summary-item-remove{display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;color:#DC2626;cursor:pointer;transition:all .2s;font-size:.8rem;}
+.summary-item-remove:hover{background:#FCA5A5;border-color:#F87171;color:#991B1B;}
 .summary-divider{border:none;border-top:1px solid #f0ebe3;margin:14px 0;}
 .summary-line{display:flex;justify-content:space-between;align-items:center;font-size:.88rem;color:var(--c-muted,#A07880);margin:.4rem 0;}
 .summary-line.total{font-size:1.05rem;font-weight:700;color:var(--c-dark,#2C1A1D);margin-top:10px;}
@@ -265,7 +267,7 @@ $total = $subtotal + $shipping;
       <a href="<?= $jbBase ?>/bijoux.php">Bijoux</a>
       <a href="<?= $jbBase ?>/soins-rituels.php">Soins &amp; Rituels</a>
       <a href="<?= $jbBase ?>/coffrets.php">Coffrets</a>
-      <a href="<?= $jbBase ?>/pages/category.php?c=all">Toute la collection</a>
+      <a href="<?= $jbBase ?>/bijoux.php">Toute la collection</a>
     </nav>
     <div class="co-sb-bot">
       <a href="<?= $jbBase ?>/login.php">Mon compte</a>
@@ -278,7 +280,7 @@ $total = $subtotal + $shipping;
         <h1 class="co-tb-title"><?= $orderPlaced ? 'Commande confirmée' : 'Finaliser la commande' ?></h1>
         <div class="co-bc">
           <a href="<?= $jbBase ?>/pages/index.php">Accueil</a>
-          <?php if (!$orderPlaced): ?> → <a href="<?= $jbBase ?>/pages/category.php?c=all">Collection</a> → <span>Commande</span><?php endif; ?>
+          <?php if (!$orderPlaced): ?> → <a href="<?= $jbBase ?>/bijoux.php">Collection</a> → <span>Commande</span><?php endif; ?>
         </div>
       </div>
       <div class="co-tb-actions">
@@ -308,7 +310,7 @@ $total = $subtotal + $shipping;
 <?php if (empty($cartItems)): ?>
       <div class="cart-empty-note">
         <p style="font-size:1.1rem;color:var(--c-dark,#2C1A1D);">Votre panier est vide.</p>
-        <p><a href="<?= $jbBase ?>/pages/category.php?c=all">← Retour à la collection</a></p>
+        <p><a href="<?= $jbBase ?>/bijoux.php">← Retour à la collection</a></p>
       </div>
 <?php else: ?>
       <div class="checkout-wrap">
@@ -449,11 +451,12 @@ $total = $subtotal + $shipping;
         <div>
           <div class="order-summary-card">
             <h2>Récapitulatif</h2>
-            <div class="summary-items">
-              <?php foreach ($cartItems as $item):
+            <div class="summary-items" id="summary-items">
+              <?php foreach ($cartItems as $index => $item):
                   $imgUrl = jb_cart_item_image_url($item);
+                  $itemId = $item['id'] ?? $index; // Use ID or index as fallback
                   ?>
-              <div class="summary-item">
+              <div class="summary-item" data-item-id="<?= htmlspecialchars($itemId) ?>">
                 <?php if ($imgUrl !== ''): ?>
                   <img src="<?= htmlspecialchars($imgUrl) ?>" alt="<?= htmlspecialchars($item['name'] ?? '') ?>">
                 <?php else: ?>
@@ -464,6 +467,7 @@ $total = $subtotal + $shipping;
                   <div class="qty">Qté : <?= (int)($item['qty'] ?? 1) ?></div>
                 </div>
                 <div class="summary-item-price"><?= formatPrice(($item['price'] ?? 0) * ($item['qty'] ?? 1)) ?></div>
+                <button class="summary-item-remove" onclick="removeFromCart('<?= htmlspecialchars($itemId) ?>')" title="Supprimer cet article">×</button>
               </div>
               <?php endforeach; ?>
             </div>
@@ -619,6 +623,206 @@ async function applyPromo() {
       msg.style.color = '#c0392b';
     }
   } catch (e) { msg.textContent = 'Erreur réseau.'; msg.style.color = '#c0392b'; }
+}
+
+// Fonction pour supprimer un article du panier
+async function removeFromCart(itemId) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cet article du panier ?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch('<?= $jbBase ?>/api/cart-remove.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        item_id: itemId
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Mettre à jour le localStorage pour synchroniser avec le panier global
+      try {
+        // Récupérer le panier actuel du localStorage
+        let cart = [];
+        const stored = localStorage.getItem('jolly_cart');
+        if (stored) {
+          cart = JSON.parse(stored);
+          if (!Array.isArray(cart)) cart = [];
+        }
+        
+        // Supprimer l'article du localStorage (gérer les deux cas: ID réel et index)
+        let updatedCart = [];
+        if (!isNaN(itemId)) {
+          // Si itemId est numérique, essayer de supprimer par ID d'abord
+          const numericItemId = parseInt(itemId);
+          updatedCart = cart.filter(item => {
+            // Supprimer si l'ID correspond ET si l'item a un ID
+            if (item.id !== null && item.id !== undefined) {
+              return String(item.id) !== String(numericItemId);
+            }
+            return true; // Garder les items sans ID pour l'instant
+          });
+          
+          // Si aucun item n'a été supprimé, essayer par index
+          if (updatedCart.length === cart.length) {
+            updatedCart = cart.filter((item, index) => index !== numericItemId);
+          }
+        } else {
+          // Si itemId n'est pas numérique, supprimer par index
+          updatedCart = cart.filter((item, index) => String(index) !== String(itemId));
+        }
+        
+        // Sauvegarder le panier mis à jour
+        localStorage.setItem('jolly_cart', JSON.stringify(updatedCart));
+        
+        // Mettre à jour le compteur du panier dans le header
+        const cartCount = updatedCart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        document.querySelectorAll('.cart-count').forEach(el => {
+          el.textContent = cartCount > 0 ? String(cartCount) : '';
+        });
+        
+      } catch (e) {
+        console.error('Error updating localStorage:', e);
+      }
+      
+      // Supprimer l'élément du DOM avec animation
+      const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+      if (itemElement) {
+        itemElement.style.transition = 'opacity 0.3s, transform 0.3s';
+        itemElement.style.opacity = '0';
+        itemElement.style.transform = 'translateX(20px)';
+        
+        setTimeout(() => {
+          itemElement.remove();
+          updateCartDisplay();
+          
+          // Si le panier est vide, recharger la page
+          if (result.cart_count === 0) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+          }
+        }, 300);
+      }
+      
+      // Mettre à jour le compteur du panier dans le header (si présent)
+      updateCartCount(result.cart_count);
+      
+      // Afficher une notification de succès
+      showNotification('Article supprimé du panier', 'success');
+    } else {
+      showNotification(result.error || 'Erreur lors de la suppression', 'error');
+    }
+  } catch (error) {
+    console.error('Error removing item from cart:', error);
+    showNotification('Une erreur est survenue. Veuillez réessayer.', 'error');
+  }
+}
+
+// Mettre à jour l'affichage des totaux après suppression
+function updateCartDisplay() {
+  // Recalculer les totaux
+  const items = document.querySelectorAll('.summary-item');
+  let subtotal = 0;
+  
+  items.forEach(item => {
+    const priceText = item.querySelector('.summary-item-price').textContent;
+    const price = parseFloat(priceText.replace(' €', '').replace(',', '.').replace(' ', ''));
+    subtotal += price;
+  });
+  
+  const shipping = subtotal >= 60 ? 0 : 5.90;
+  const total = subtotal + shipping;
+  
+  // Mettre à jour les totaux affichés
+  const subtotalElement = document.querySelector('.summary-line:nth-of-type(1) span:last-child');
+  const shippingElement = document.querySelector('.summary-line:nth-of-type(2) span:last-child');
+  const totalElement = document.querySelector('.summary-line.total span:last-child');
+  
+  if (subtotalElement) subtotalElement.textContent = formatPrice(subtotal);
+  if (shippingElement) {
+    if (shipping === 0) {
+      shippingElement.innerHTML = '<span class="free">Gratuite</span>';
+    } else {
+      shippingElement.textContent = formatPrice(shipping);
+    }
+  }
+  if (totalElement) totalElement.textContent = formatPrice(total);
+  
+  // Mettre à jour le message de livraison gratuite
+  const freeShippingMsg = document.querySelector('.order-summary-card p');
+  if (freeShippingMsg && subtotal < 60) {
+    freeShippingMsg.textContent = `Plus que ${formatPrice(60 - subtotal)} pour la livraison gratuite !`;
+  } else if (freeShippingMsg && subtotal >= 60) {
+    freeShippingMsg.textContent = '🎉 Livraison gratuite !';
+  }
+}
+
+// Mettre à jour le compteur du panier
+function updateCartCount(count) {
+  const cartCounters = document.querySelectorAll('.cart-counter');
+  cartCounters.forEach(counter => {
+    counter.textContent = count;
+    if (count === 0) {
+      counter.style.display = 'none';
+    } else {
+      counter.style.display = 'flex';
+    }
+  });
+}
+
+// Afficher une notification
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    transform: translateX(100%);
+  `;
+  
+  if (type === 'success') {
+    notification.style.background = '#10b981';
+  } else if (type === 'error') {
+    notification.style.background = '#ef4444';
+  } else {
+    notification.style.background = '#3b82f6';
+  }
+  
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  
+  // Animation d'entrée
+  setTimeout(() => {
+    notification.style.transform = 'translateX(0)';
+  }, 10);
+  
+  // Disparition automatique
+  setTimeout(() => {
+    notification.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
+  }, 3000);
+}
+
+// Formater le prix (fonction utilitaire)
+function formatPrice(amount) {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount);
 }
 </script>
 </body>

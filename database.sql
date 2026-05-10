@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `stock`        INT DEFAULT 0,
   `featured`     TINYINT(1) DEFAULT 0,
   `active`       TINYINT(1) DEFAULT 1,
+  `gallery_only` TINYINT(1) DEFAULT 0,
   `created_at`   DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
   INDEX idx_slug  (`slug`),

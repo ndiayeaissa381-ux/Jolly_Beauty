@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 $pageTitle = 'Galerie Média - Jolly Beauty';
+
+// Récupérer les produits pour la galerie
+$galleryProducts = getGalleryProducts();
 include __DIR__ . '/../includes/header.php';
 ?>
 
@@ -125,8 +128,52 @@ include __DIR__ . '/../includes/header.php';
   </div>
 </section>
 
-<!-- GALERIE PHOTOS -->
+<!-- GALERIE PRODUITS -->
 <section class="media-section" id="gallery" style="background: var(--rose-light);">
+  <div class="section-head" data-reveal>
+    <div>
+      <h2 class="section-title">Notre <em>Galerie Produits</em></h2>
+      <p class="section-sub">Découvrez nos créations mises en avant</p>
+    </div>
+  </div>
+
+  <?php if (!empty($galleryProducts)): ?>
+    <div class="gallery-grid" data-reveal>
+      <?php foreach ($galleryProducts as $product): 
+        $img = !empty($product['images'][0]) ? $product['images'][0] : '';
+        $price = (float)($product['price'] ?? 0);
+        $oldPrice = $product['old_price'] ? (float)$product['old_price'] : null;
+      ?>
+        <div class="gallery-item">
+          <a href="<?= htmlspecialchars(BASE_URL) ?>/product.php?slug=<?= urlencode($product['slug']) ?>">
+            <?php if ($img !== ''): ?>
+              <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($product['name']) ?>" loading="lazy">
+            <?php else: ?>
+              <div style="display:grid;place-items:center;height:100%;font-size:2.5rem;opacity:.25;">🌸</div>
+            <?php endif; ?>
+            <div class="gallery-overlay">
+              <div class="gallery-overlay-content">
+                <h4><?= htmlspecialchars($product['name']) ?></h4>
+                <p class="gallery-price"><?= formatPrice($price) ?></p>
+                <?php if ($oldPrice): ?>
+                  <p class="gallery-old-price"><?= formatPrice($oldPrice) ?></p>
+                <?php endif; ?>
+                <span class="gallery-overlay-text">Voir le produit</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  <?php else: ?>
+    <div class="gallery-empty" data-reveal>
+      <p>Aucun produit à afficher dans la galerie pour le moment.</p>
+    </div>
+  <?php endif; ?>
+</section>
+
+<!-- GALERIE PHOTOS -->
+<section class="media-section" id="photos" style="background: var(--white);">
   <div class="section-head" data-reveal>
     <div>
       <h2 class="section-title">Notre <em>Galerie Photos</em></h2>
@@ -195,7 +242,7 @@ include __DIR__ . '/../includes/header.php';
     <h2 class="cta-title">Prêt(e) à découvrir nos créations ?</h2>
     <p class="cta-text">Explorez notre boutique complète et trouvez la pièce qui vous correspond</p>
     <div class="cta-buttons">
-      <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/pages/category.php?c=all" class="btn btn--dark btn--large">Voir toute la boutique</a>
+      <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/bijoux.php" class="btn btn--dark btn--large">Voir toute la boutique</a>
       <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/coffrets.php" class="btn btn--outline btn--large">Découvrir les coffrets</a>
     </div>
   </div>
@@ -518,6 +565,42 @@ include __DIR__ . '/../includes/header.php';
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.gallery-overlay-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+  color: white;
+}
+
+.gallery-overlay-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.gallery-price {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--rose-light);
+}
+
+.gallery-old-price {
+  margin: 0;
+  font-size: 0.8rem;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.gallery-empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted);
 }
 
 /* CTA Section */

@@ -27,7 +27,7 @@ if (!isAdmin()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_login'])) {
         if ($_POST['username'] === ADMIN_USER && $_POST['password'] === ADMIN_PASS_PLAIN) {
             $_SESSION['jb_admin'] = true;
-         C   // Toujours revenir sur l'URL "canonique" de l'admin
+            // Toujours revenir sur l'URL "canonique" de l'admin
             header('Location: ' . APP_URL . '/admin/index.php', true, 302);
             exit;
         }

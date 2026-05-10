@@ -2,17 +2,119 @@
 require_once __DIR__ . '/../includes/config.php';
 $slug    = sanitize($_GET['slug'] ?? '');
 $product = getProductBySlug($slug);
-if (!$product) { header('Location: ' . BASE_URL . '/pages/category.php?c=all'); exit; }
+
+// Si pas de produit en base, essayer les données mock
+if (!$product) {
+    $mockProducts = [
+        'bracelet-soleil' => [
+            'id' => 'mock-1',
+            'name' => 'Bracelet Soleil',
+            'price' => 29.90,
+            'description' => 'Un bracelet élégant qui capture la lumière du soleil avec ses délicates chaînes dorées.',
+            'category' => 'bijoux',
+            'images' => ['/assets/images/bijoux/bijoux-bracelet-1.jpg'],
+            'stock' => 10
+        ],
+        'bague-torsadee' => [
+            'id' => 'mock-2',
+            'name' => 'Bague Torsadée',
+            'price' => 24.90,
+            'description' => 'Une bague raffinée avec un design torsadé unique, parfaite pour toutes les occasions.',
+            'category' => 'bijoux',
+            'images' => ['/assets/images/bijoux/bijoux-bague-1.jpg'],
+            'stock' => 8
+        ],
+        'collier-lumiere' => [
+            'id' => 'mock-3',
+            'name' => 'Collier Lumière',
+            'price' => 33.90,
+            'description' => 'Un collier scintillant qui illumine votre silhouette avec sa pierre centrale brillante.',
+            'category' => 'bijoux',
+            'images' => ['/assets/images/bijoux/bijoux-collier-1.jpg'],
+            'stock' => 12
+        ],
+        'bracelet-perles' => [
+            'id' => 'mock-4',
+            'name' => 'Bracelet Perles',
+            'price' => 27.90,
+            'description' => 'Un bracelet délicat orné de perles nacrées pour un look féminin et élégant.',
+            'category' => 'bijoux',
+            'images' => ['/assets/images/bijoux/bijoux-bracelet-2.jpg'],
+            'stock' => 15
+        ],
+        'bague-douceur' => [
+            'id' => 'mock-5',
+            'name' => 'Bague Douceur',
+            'price' => 26.90,
+            'description' => 'Une bague douce et confortable avec un design minimaliste et moderne.',
+            'category' => 'bijoux',
+            'images' => ['/assets/images/bijoux/bijoux-bague-2.jpg'],
+            'stock' => 9
+        ],
+        'creoles-eclat' => [
+            'id' => 'mock-6',
+            'name' => 'Créoles Éclat',
+            'price' => 28.90,
+            'description' => 'Des créoles classiques avec un éclat moderne, parfaites pour un usage quotidien.',
+            'category' => 'bijoux',
+            'images' => ['/assets/images/bijoux/bracelet-charms-eclat.jpg'],
+            'stock' => 11
+        ]
+    ];
+    
+    $product = $mockProducts[$slug] ?? null;
+}
+
+if (!$product) { header('Location: ' . BASE_URL . '/bijoux.php'); exit; }
 $pageTitle = sanitize($product['name']) . ' — Jolly Beauty';
 
-// Récupère les images du produit depuis la base de données
+// Récupère les images du produit depuis la base de données ou mock data
 $images = !empty($product['images']) ? $product['images'] : [];
-$mainImg = !empty($images[0]) ? $images[0] : null;
+$mainImg = !empty($images[0]) ? $jbBase . $images[0] : null;
 
-// Produits associés
-$related = getProducts($product['category'] ?? null, '', 'default', 4);
-$related = array_filter($related, fn($p) => $p['id'] !== $product['id']);
-$related = array_slice(array_values($related), 0, 4);
+// Produits associés améliorés
+$related = [];
+$category = $product['category'] ?? null;
+
+// 1. D'abord essayer de trouver des produits de la même catégorie
+if ($category) {
+    $sameCategory = getProducts($category, '', 'default', 8);
+    $sameCategory = array_filter($sameCategory, fn($p) => $p['id'] !== $product['id']);
+    
+    // Trier par pertinence : produits en vedette d'abord
+    usort($sameCategory, function($a, $b) {
+        if ($a['featured'] && !$b['featured']) return -1;
+        if (!$a['featured'] && $b['featured']) return 1;
+        return 0;
+    });
+    
+    $related = array_slice($sameCategory, 0, 4);
+}
+
+// 2. Si pas assez de produits, ajouter des produits similaires (même gamme de prix)
+if (count($related) < 4) {
+    $allProducts = getProducts(null, '', 'default', 20);
+    $allProducts = array_filter($allProducts, fn($p) => $p['id'] !== $product['id'] && !in_array($p, $related));
+    
+    // Filtrer par gamme de prix similaire (±30%)
+    $priceRange = $product['price'] * 0.3;
+    $similarPrice = array_filter($allProducts, function($p) use ($product, $priceRange) {
+        return abs($p['price'] - $product['price']) <= $priceRange;
+    });
+    
+    // Ajouter les meilleurs produits similaires
+    $related = array_merge($related, array_slice($similarPrice, 0, 4 - count($related)));
+}
+
+// 3. Compléter avec des produits populaires si nécessaire
+if (count($related) < 4) {
+    $remaining = array_filter(getProducts(null, '', 'default', 10), 
+        fn($p) => $p['id'] !== $product['id'] && !in_array($p, $related));
+    $related = array_merge($related, array_slice($remaining, 0, 4 - count($related)));
+}
+
+// Limiter à 4 produits au final
+$related = array_slice($related, 0, 4);
 
 include __DIR__ . '/../includes/header.php';
 $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
@@ -20,7 +122,7 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
 
 <div style="background:var(--rose-pale);padding:16px 6%;font-size:.76rem;color:var(--muted);" class="breadcrumb">
   <a href="<?= $jbBase ?>/index.php">Accueil</a> ›
-  <?php $cat = $product['category'] ?? ''; $catHref = $jbBase . '/category.php?c=' . urlencode(in_array($cat, ['bijoux','soins','coffrets','produits'], true) ? $cat : 'all'); ?>
+  <?php $cat = $product['category'] ?? ''; $catHref = $jbBase . '/' . (in_array($cat, ['bijoux','soins','coffrets','produits'], true) ? $cat . '.php' : 'bijoux.php'); ?>
   <a href="<?= htmlspecialchars($catHref) ?>"><?= ucfirst(sanitize($cat)) ?></a> ›
   <?= sanitize($product['name']) ?>
 </div>
@@ -28,15 +130,30 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
 <section class="product-section">
   <div class="product-layout">
 
-    <!-- GALLERY -->
+    <!-- GALLERY AMÉLIORÉE -->
     <div class="product-gallery">
-      <div class="gallery-main">
-        <?php if ($mainImg): ?><img src="<?= htmlspecialchars($mainImg) ?>" alt="<?= sanitize($product['name']) ?>" id="gallery-main-img"><?php else: ?><div style="width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:.25">🌸</div><?php endif; ?>
+      <div class="gallery-main" id="gallery-main">
+        <?php if ($mainImg): ?>
+          <img src="<?= htmlspecialchars($mainImg) ?>" 
+               alt="<?= sanitize($product['name']) ?>" 
+               id="gallery-main-img"
+               class="gallery-zoomable"
+               onclick="openZoom(this.src)">
+        <?php else: ?>
+          <div style="width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:.25">🌸</div>
+        <?php endif; ?>
+        <div class="gallery-zoom-hint">🔍 Cliquez pour zoomer</div>
       </div>
       <?php if (count($images) > 1): ?>
       <div class="gallery-thumbs">
-        <?php foreach(array_slice($images,0,4) as $i=>$img): ?>
-        <img src="<?= htmlspecialchars($img) ?>" class="gallery-thumb <?= $i===0?'active':'' ?>" onclick="switchImg(this,'<?= htmlspecialchars($img) ?>')" alt="<?= sanitize($product['name']) ?>">
+        <?php foreach(array_slice($images,0,6) as $i=>$img): ?>
+        <div class="gallery-thumb-wrap <?= $i===0?'active':'' ?>">
+          <img src="<?= htmlspecialchars($img) ?>" 
+               class="gallery-thumb" 
+               onclick="switchImg(this,'<?= htmlspecialchars($img) ?>')" 
+               alt="<?= sanitize($product['name']) ?>"
+               loading="lazy">
+        </div>
         <?php endforeach; ?>
       </div>
       <?php endif; ?>
@@ -98,7 +215,15 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
 
       <div class="product-cta-row">
         <button class="btn btn--rose" style="flex:1" onclick="addProductToCart()">Ajouter au panier</button>
-        <button class="btn-wishlist" title="Ajouter aux favoris">♡</button>
+        <button class="btn-wishlist" 
+                data-product-id="<?= htmlspecialchars($product['id']) ?>"
+                data-product-name="<?= htmlspecialchars($product['name']) ?>"
+                onclick="toggleFavorite('<?= htmlspecialchars($product['id']) ?>', this)"
+                title="Ajouter aux favoris"
+                style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">♡</button>
+        <button class="share-btn" onclick="shareProduct()" title="Partager ce produit">
+          📤 Partager
+        </button>
       </div>
 
       <div class="trust-row">
@@ -136,8 +261,14 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
       $img = !empty($p['images'][0]) ? $p['images'][0] : null;
     ?>
     <div class="product-card">
-      <div class="product-card__img-wrap">
+      <div class="product-card__img-wrap" style="position: relative;">
         <?php if ($img): ?><img src="<?= htmlspecialchars($img) ?>" alt="<?= sanitize($p['name']) ?>" loading="lazy"><?php else: ?><div style="width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.3">🌸</div><?php endif; ?>
+        <button class="favorite-btn" 
+                data-product-id="<?= htmlspecialchars($p['id']) ?>"
+                data-product-name="<?= sanitize($p['name']) ?>"
+                onclick="toggleFavorite('<?= htmlspecialchars($p['id']) ?>', this)"
+                title="Ajouter aux favoris"
+                style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">♡</button>
       </div>
       <div class="product-card__body">
         <div class="product-card__cat"><?= sanitize($p['category'] ?? '') ?></div>
@@ -152,5 +283,345 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
   </div>
 </section>
 <?php endif; ?>
+
+<!-- Modal de zoom -->
+<div id="zoom-modal" class="zoom-modal" onclick="closeZoom()">
+    <div class="zoom-content">
+        <img id="zoom-img" src="" alt="<?= sanitize($product['name']) ?>">
+        <button class="zoom-close" onclick="closeZoom()">✕</button>
+    </div>
+</div>
+
+<!-- Script amélioré -->
+<script>
+function addProductToCart() {
+    const qtyInput = document.getElementById('qty-input');
+    const id = qtyInput.dataset.id;
+    const name = qtyInput.dataset.name;
+    const price = parseFloat(qtyInput.dataset.price);
+    const image = qtyInput.dataset.image;
+    const qty = parseInt(qtyInput.value) || 1;
+    
+    if (typeof addToCart === 'function') {
+        for (let i = 0; i < qty; i++) {
+            addToCart({
+                id: id,
+                name: name,
+                price: price,
+                image: image,
+                category: '<?= addslashes($product['category'] ?? '') ?>'
+            });
+        }
+        showToast('Ajouté au panier !');
+    }
+}
+
+function changeQtyInput(delta) {
+    const input = document.getElementById('qty-input');
+    const current = parseInt(input.value) || 1;
+    const max = parseInt(input.dataset.max) || 99;
+    const newVal = Math.max(1, Math.min(max, current + delta));
+    input.value = newVal;
+}
+
+function selectSize(btn) {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function switchImg(thumb, src) {
+    const mainImg = document.getElementById('gallery-main-img');
+    mainImg.src = src;
+    document.querySelectorAll('.gallery-thumb-wrap').forEach(t => t.classList.remove('active'));
+    thumb.parentElement.classList.add('active');
+}
+
+function toggleAcc(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    btn.classList.toggle('open');
+    body.classList.toggle('open');
+    btn.querySelector('.accordion-icon').textContent = isOpen ? '+' : '−';
+}
+
+// Fonctionnalités de zoom
+function openZoom(src) {
+    const modal = document.getElementById('zoom-modal');
+    const zoomImg = document.getElementById('zoom-img');
+    zoomImg.src = src;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeZoom() {
+    const modal = document.getElementById('zoom-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Partage du produit
+function shareProduct() {
+    const url = window.location.href;
+    const title = '<?= sanitize($product['name']) ?> — Jolly Beauty';
+    
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: 'Découvrez ce magnifique bijou chez Jolly Beauty !',
+            url: url
+        });
+    } else {
+        // Fallback : copier dans le presse-papiers
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Lien copié dans le presse-papiers !');
+        });
+    }
+}
+
+// Navigation au clavier pour la galerie
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('zoom-modal');
+    if (modal.style.display === 'flex') {
+        if (e.key === 'Escape') closeZoom();
+        return;
+    }
+    
+    const thumbs = document.querySelectorAll('.gallery-thumb');
+    const activeThumb = document.querySelector('.gallery-thumb-wrap.active .gallery-thumb');
+    if (!activeThumb) return;
+    
+    let currentIndex = Array.from(thumbs).indexOf(activeThumb);
+    
+    if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        thumbs[currentIndex - 1].click();
+    } else if (e.key === 'ArrowRight' && currentIndex < thumbs.length - 1) {
+        thumbs[currentIndex + 1].click();
+    }
+});
+
+// Amélioration du chargement des images
+document.addEventListener('DOMContentLoaded', function() {
+    const mainImg = document.getElementById('gallery-main-img');
+    if (mainImg) {
+        mainImg.addEventListener('load', function() {
+            this.style.opacity = '1';
+        });
+    }
+});
+</script>
+
+<style>
+/* Améliorations de la galerie */
+.product-gallery {
+    position: relative;
+}
+
+.gallery-main {
+    position: relative;
+    cursor: zoom-in;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.gallery-main img {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+}
+
+.gallery-main img:hover {
+    transform: scale(1.02);
+}
+
+.gallery-zoom-hint {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-main:hover .gallery-zoom-hint {
+    opacity: 1;
+}
+
+.gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.gallery-thumb-wrap {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.gallery-thumb-wrap:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.gallery-thumb-wrap.active {
+    border-color: var(--rose-deep);
+}
+
+.gallery-thumb {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gallery-thumb:hover {
+    transform: scale(1.05);
+}
+
+/* Modal de zoom */
+.zoom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+}
+
+.zoom-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.zoom-content img {
+    width: 100%;
+    height: auto;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+.zoom-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.zoom-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Bouton de partage */
+.share-btn {
+    background: var(--rose-deep);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.share-btn:hover {
+    background: var(--rose-dark);
+    transform: translateY(-2px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .product-layout {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .gallery-thumbs {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 8px;
+    }
+    
+    .gallery-thumb {
+        height: 60px;
+    }
+    
+    .zoom-content {
+        max-width: 95%;
+        max-height: 95%;
+    }
+    
+    .gallery-zoom-hint {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-thumbs {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+    
+    .gallery-thumb {
+        height: 50px;
+    }
+    
+    .zoom-close {
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.5);
+    }
+    
+    .share-btn {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+
+/* Amélioration des transitions */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* Animation de chargement */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.product-section > * {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+.product-section > *:nth-child(2) { animation-delay: 0.1s; }
+.product-section > *:nth-child(3) { animation-delay: 0.2s; }
+</style>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

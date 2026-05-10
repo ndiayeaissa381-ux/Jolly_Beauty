@@ -13,18 +13,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($action === 'login') {
     $email = strtolower(trim($_POST['email'] ?? ''));
     $pass  = $_POST['password'] ?? '';
+    
+    // Debug: Log des données reçues
+    error_log("LOGIN DEBUG - Email reçu: " . $email);
+    error_log("LOGIN DEBUG - Mot de passe reçu: " . ($pass ? "***" : "(vide)"));
+    
     $user  = getUserByEmail($email);
+    
+    // Debug: Résultat de la recherche utilisateur
+    if ($user) {
+      error_log("LOGIN DEBUG - Utilisateur trouvé: " . print_r($user, true));
+    } else {
+      error_log("LOGIN DEBUG - Aucun utilisateur trouvé pour: " . $email);
+    }
+    
     if ($user && password_verify($pass, $user['password'])) {
+      error_log("LOGIN DEBUG - Mot de passe valide, connexion réussie");
       $_SESSION['jb_user'] = ['id'=>$user['id'],'name'=>$user['name'],'email'=>$user['email']];
+      
+      // Debug: Session créée
+      error_log("LOGIN DEBUG - Session créée: " . print_r($_SESSION['jb_user'], true));
+      
        // Si l'utilisateur est admin en base, ouvrir l'espace admin
       if (!empty($user['role']) && strtolower((string)$user['role']) === 'admin') {
+        error_log("LOGIN DEBUG - Utilisateur admin, redirection vers admin");
         $_SESSION['jb_admin'] = true;
         header('Location: ' . APP_URL . '/admin/index.php', true, 302);
         exit;
       }
+      error_log("LOGIN DEBUG - Utilisateur client, redirection vers login");
       header('Location: ' . BASE_URL . '/login.php');
       exit;
     } else {
+      error_log("LOGIN DEBUG - Échec de la connexion");
+      if ($user) {
+        error_log("LOGIN DEBUG - Mot de passe invalide");
+      } else {
+        error_log("LOGIN DEBUG - Utilisateur non trouvé");
+      }
       $error = 'Email ou mot de passe incorrect.';
     }
   }
@@ -322,12 +348,12 @@ $pageTitle = $mode === 'register' ? 'Créer un compte — Jolly Beauty' : 'Conne
     <p class="dash-sub">Bienvenue dans votre espace Jolly Beauty.</p>
 
     <div class="dash-grid">
-      <a href="<?= $jbBase ?>/pages/category.php?c=all" class="dash-card">
+      <a href="<?= $jbBase ?>/bijoux.php" class="dash-card">
         <span class="dash-card-icon">👜</span>
         <div class="dash-card-title">Mes Commandes</div>
         <p class="dash-card-desc">Suivez vos commandes et consultez votre historique d'achats.</p>
       </a>
-      <a href="<?= $jbBase ?>/pages/category.php?c=all" class="dash-card">
+      <a href="<?= $jbBase ?>/pages/favorites.php" class="dash-card">
         <span class="dash-card-icon">♡</span>
         <div class="dash-card-title">Mes Favoris</div>
         <p class="dash-card-desc">Retrouvez les pièces que vous avez sauvegardées.</p>
@@ -336,6 +362,11 @@ $pageTitle = $mode === 'register' ? 'Créer un compte — Jolly Beauty' : 'Conne
         <span class="dash-card-icon">⚙️</span>
         <div class="dash-card-title">Mon Profil</div>
         <p class="dash-card-desc">Gérez vos informations personnelles et préférences.</p>
+      </a>
+      <a href="<?= $jbBase ?>/pages/reviews.php" class="dash-card">
+        <span class="dash-card-icon">⭐</span>
+        <div class="dash-card-title">Mes Avis</div>
+        <p class="dash-card-desc">Partagez votre expérience et consultez vos avis publiés.</p>
       </a>
       <a href="<?= $jbBase ?>/bijoux.php" class="dash-card">
         <span class="dash-card-icon">💍</span>

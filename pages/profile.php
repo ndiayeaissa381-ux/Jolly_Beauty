@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/header.php';
 
       <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
         <a href="<?= $jbBase ?>/login.php" class="btn btn-outline">← Retour à mon espace</a>
-        <a href="<?= $jbBase ?>/category.php?c=all" class="btn btn-primary">Découvrir la boutique →</a>
+        <a href="<?= $jbBase ?>/bijoux.php" class="btn btn-primary">Découvrir la boutique →</a>
       </div>
     </div>
   </div>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Panier Jolly Beauty</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { margin: 5px; padding: 8px 12px; cursor: pointer; }
+        .cart-overlay { 
+            position: fixed; right: 0; top: 0; width: 400px; height: 100vh; 
+            background: white; border: 1px solid #ddd; transform: translateX(100%); 
+            transition: transform 0.3s; z-index: 1000;
+        }
+        .cart-overlay.open { transform: translateX(0); }
+        .cart-bg { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+            display: none; z-index: 999;
+        }
+        .cart-bg.open { display: block; }
+        .cart-header { 
+            padding: 15px; border-bottom: 1px solid #ddd; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cart-items { padding: 15px; max-height: 60vh; overflow-y: auto; }
+        .cart-footer { padding: 15px; border-top: 1px solid #ddd; }
+        .cart-item { 
+            display: flex; gap: 12px; padding: 14px 0; 
+            border-bottom: 1px solid #ddd; 
+        }
+        .cart-item img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; }
+        .empty-cart { text-align: center; color: #999; padding: 2rem; }
+        .debug-info { background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Debug Panier Jolly Beauty</h1>
+    
+    <div class="test-section">
+        <h2>Ajouter des produits</h2>
+        <button onclick='testAddProduct("1", "Collier Précieux", 145.00)'>
+            Ajouter Collier Précieux (145€)
+        </button>
+        <button onclick='testAddProduct("2", "Bague Pierre Naturelle", 89.00)'>
+            Ajouter Bague Pierre Naturelle (89€)
+        </button>
+        <button onclick='testAddProduct("3", "Coffret Lady", 125.00)'>
+            Ajouter Coffret Lady (125€)
+        </button>
+    </div>
+
+    <div class="test-section">
+        <h2>Actions Panier</h2>
+        <button onclick="openCart()">Ouvrir Panier</button>
+        <button onclick="closeCart()">Fermer Panier</button>
+        <button onclick="clearCart()">Vider Panier</button>
+        <button onclick="showDebugInfo()">Afficher Debug Info</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Tests Directs</h2>
+        <button onclick="testRemoveFromCart()">Test Remove From Cart</button>
+        <button onclick="testUpdateQuantity()">Test Update Quantity</button>
+    </div>
+
+    <div id="debug-output" class="debug-info"></div>
+
+    <!-- Cart Overlay -->
+    <div class="cart-bg" id="cart-bg" onclick="closeCart()"></div>
+    <div class="cart-overlay" id="cart-overlay">
+        <div class="cart-header">
+            <h3>Mon Panier</h3>
+            <button onclick="closeCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total</span>
+                <span id="cart-total-price">0,00 €</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base URL pour les tests
+        window.JB_BASE = '';
+        
+        let cart = [];
+
+        function initCart() {
+            try {
+                const stored = localStorage.getItem('jolly_cart');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        cart = parsed.map(item => ({
+                            ...item,
+                            id: String(item.id),
+                            price: parseFloat(item.price) || 0,
+                            quantity: parseInt(item.quantity) || 1
+                        }));
+                    } else {
+                        cart = [];
+                    }
+                } else {
+                    cart = [];
+                }
+            } catch (e) {
+                console.error('Error loading cart:', e);
+                cart = [];
+            }
+            updateCartUI();
+            renderCartOverlay();
+        }
+
+        function saveCart() {
+            localStorage.setItem('jolly_cart', JSON.stringify(cart));
+            updateCartUI();
+            renderCartOverlay();
+            console.log('Cart saved:', cart);
+        }
+
+        function escHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function addToCart(id, name, price, image, category) {
+            if (id && typeof id === 'object') {
+                const obj = id;
+                id = obj.id;
+                name = obj.name;
+                price = parseFloat(obj.price);
+                image = obj.image;
+                category = obj.category || '';
+            }
+            price = parseFloat(price);
+            const idStr = String(id);
+            const existing = cart.find(item => String(item.id) === idStr);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id: idStr, name, price, image: image || '', category: category || '', quantity: 1 });
+            }
+            saveCart();
+            showToast(`${name} ajouté au panier`);
+            openCart();
+        }
+
+        function removeFromCart(id) {
+            console.log('removeFromCart called with id:', id, typeof id);
+            const idStr = String(id);
+            console.log('idStr:', idStr);
+            
+            const beforeCount = cart.length;
+            cart = cart.filter(item => {
+                console.log('Comparing item.id:', item.id, 'with idStr:', idStr, 'result:', String(item.id) !== idStr);
+                return String(item.id) !== idStr;
+            });
+            const afterCount = cart.length;
+            
+            console.log('Cart before:', beforeCount, 'after:', afterCount);
+            saveCart();
+        }
+
+        function updateQuantity(id, delta) {
+            console.log('updateQuantity called with id:', id, 'delta:', delta);
+            const item = cart.find(i => String(i.id) === String(id));
+            console.log('Found item:', item);
+            if (!item) return;
+            item.quantity = Math.max(1, item.quantity + delta);
+            console.log('Updated item quantity to:', item.quantity);
+            saveCart();
+        }
+
+        function formatPriceEUR(price) {
+            const numPrice = parseFloat(price) || 0;
+            return numPrice.toFixed(2).replace('.', ',') + ' €';
+        }
+
+        function getCartSubtotal() {
+            return cart.reduce((sum, i) => {
+                const price = parseFloat(i.price) || 0;
+                const qty = parseInt(i.quantity) || 1;
+                const itemTotal = price * qty;
+                return sum + itemTotal;
+            }, 0);
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, i) => sum + (parseInt(i.quantity) || 1), 0);
+            console.log('Cart count updated to:', count);
+        }
+
+        function renderCartOverlay() {
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total-price');
+            if (!container) return;
+
+            const subtotal = getCartSubtotal();
+            console.log('Rendering cart - Subtotal:', subtotal);
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-cart">Votre panier est vide</div>';
+                if (totalEl) totalEl.textContent = '0,00 €';
+                return;
+            }
+
+            let html = '';
+            cart.forEach((item, index) => {
+                const imgSrc = ''; // Pas d'image pour le test
+                const itemId = String(item.id).replace(/"/g, '&quot;');
+                const itemPrice = parseFloat(item.price) || 0;
+                console.log(`Item ${index}: id=${item.id}, itemId=${itemId}, name=${item.name}`);
+                
+                html += `
+                    <div class="cart-item">
+                        <div style="width:72px;height:72px;background:#ddd;border-radius:10px;"></div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:600;font-size:.88rem;">${escHtml(item.name)}</div>
+                            <div style="font-size:.82rem;color:#666;margin-top:4px;">${formatPriceEUR(itemPrice)}</div>
+                            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                                <button type="button" onclick="updateQuantity('${itemId}',-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;">−</button>
+                                <span style="min-width:24px;text-align:center;font-weight:500;">${item.quantity}</span>
+                                <button type="button" onclick="updateQuantity('${itemId}',1)" style="width:28px;height:28px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;">+</button>
+                                <button type="button" onclick="removeFromCart('${itemId}')" style="margin-left:auto;color:red;background:none;border:none;cursor:pointer;font-size:1.2rem;" title="Retirer du panier">×</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+
+            const total = subtotal;
+            if (totalEl) totalEl.textContent = formatPriceEUR(total);
+        }
+
+        function openCart() {
+            document.getElementById('cart-bg')?.classList.add('open');
+            document.getElementById('cart-overlay')?.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            renderCartOverlay();
+        }
+
+        function closeCart() {
+            document.getElementById('cart-bg')?.classList.remove('open');
+            document.getElementById('cart-overlay')?.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function showToast(message) {
+            console.log('Toast:', message);
+            alert(message); // Simple alert pour le debug
+        }
+
+        // Fonctions de test
+        function testAddProduct(id, name, price) {
+            addToCart(id, name, price, '', 'test');
+        }
+
+        function clearCart() {
+            cart = [];
+            saveCart();
+        }
+
+        function showDebugInfo() {
+            const debugOutput = document.getElementById('debug-output');
+            debugOutput.innerHTML = `
+                <h3>Debug Info:</h3>
+                <p>Cart length: ${cart.length}</p>
+                <p>Cart items:</p>
+                <pre>${JSON.stringify(cart, null, 2)}</pre>
+                <p>Subtotal: ${getCartSubtotal()}€</p>
+            `;
+        }
+
+        function testRemoveFromCart() {
+            if (cart.length > 0) {
+                const firstItem = cart[0];
+                console.log('Testing remove with item:', firstItem);
+                removeFromCart(firstItem.id);
+            } else {
+                alert('Panier vide - ajoutez des produits d\'abord');
+            }
+        }
+
+        function testUpdateQuantity() {
+            if (cart.length > 0) {
+                const firstItem = cart[0];
+                console.log('Testing update quantity with item:', firstItem);
+                updateQuantity(firstItem.id, 1);
+            } else {
+                alert('Panier vide - ajoutez des produits d\'abord');
+            }
+        }
+
+        // Expose functions globally
+        window.openCart = openCart;
+        window.closeCart = closeCart;
+        window.addToCart = addToCart;
+        window.removeFromCart = removeFromCart;
+        window.updateQuantity = updateQuantity;
+        window.showToast = showToast;
+        window.testAddProduct = testAddProduct;
+        window.clearCart = clearCart;
+        window.showDebugInfo = showDebugInfo;
+        window.testRemoveFromCart = testRemoveFromCart;
+        window.testUpdateQuantity = testUpdateQuantity;
+
+        // Initialize cart on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initCart();
+            showDebugInfo();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Panier Jolly Beauty</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { margin: 5px; padding: 8px 12px; cursor: pointer; }
+        .cart-overlay { 
+            position: fixed; right: 0; top: 0; width: 400px; height: 100vh; 
+            background: white; border: 1px solid #ddd; transform: translateX(100%); 
+            transition: transform 0.3s; z-index: 1000;
+        }
+        .cart-overlay.open { transform: translateX(0); }
+        .cart-bg { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+            display: none; z-index: 999;
+        }
+        .cart-bg.open { display: block; }
+        .cart-header { 
+            padding: 15px; border-bottom: 1px solid #ddd; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cart-items { padding: 15px; max-height: 60vh; overflow-y: auto; }
+        .cart-footer { padding: 15px; border-top: 1px solid #ddd; }
+        .cart-item { 
+            display: flex; gap: 12px; padding: 14px 0; 
+            border-bottom: 1px solid #ddd; 
+        }
+        .cart-item img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; }
+        .empty-cart { text-align: center; color: #999; padding: 2rem; }
+        .shipping-bar-wrap { margin: 15px; }
+        .shipping-bar-track { 
+            height: 8px; background: #f0f0f0; border-radius: 4px; 
+            margin: 8px 0; overflow: hidden;
+        }
+        .shipping-bar-fill { 
+            height: 100%; background: #4CAF50; transition: width 0.3s; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Panier Jolly Beauty</h1>
+    
+    <div class="test-section">
+        <h2>Produits de Test</h2>
+        <button onclick='addToCart({id:"1",name:"Collier Précieux",price:145.00,image:"collier-1.jpg",category:"bijoux"})'>
+            Ajouter Collier Précieux (145€)
+        </button>
+        <button onclick='addToCart({id:"2",name:"Bague Pierre Naturelle",price:89.00,image:"bague-1.jpg",category:"bijoux"})'>
+            Ajouter Bague Pierre Naturelle (89€)
+        </button>
+        <button onclick='addToCart({id:"3",name:"Coffret Lady",price:125.00,image:"coffret-1.jpg",category:"coffrets"})'>
+            Ajouter Coffret Lady (125€)
+        </button>
+    </div>
+
+    <div class="test-section">
+        <h2>Actions Panier</h2>
+        <button onclick="openCart()">Ouvrir Panier</button>
+        <button onclick="closeCart()">Fermer Panier</button>
+        <button onclick="localStorage.removeItem('jolly_cart'); initCart();">Vider Panier</button>
+        <button onclick="showCartData()">Afficher Données Panier</button>
+    </div>
+
+    <div class="test-section">
+        <h2>État Actuel</h2>
+        <div>Nombre d'articles: <span class="cart-count">0</span></div>
+        <div id="debug-info"></div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="cart-bg" id="cart-bg" onclick="closeCart()"></div>
+    <div class="cart-overlay" id="cart-overlay">
+        <div class="cart-header">
+            <h3>Mon Panier</h3>
+            <button onclick="closeCart()">✕</button>
+        </div>
+        <div class="shipping-bar-wrap">
+            <div class="bar-label" id="shipping-label">🚚 Plus que <strong id="shipping-remaining">60,00 €</strong> pour la livraison gratuite !</div>
+            <div class="shipping-bar-track">
+                <div class="shipping-bar-fill" id="shipping-fill" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total</span>
+                <span id="cart-total-price">0,00 €</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base URL pour les tests
+        window.JB_BASE = '';
+        
+        // Fonctions de test
+        function showCartData() {
+            const cart = JSON.parse(localStorage.getItem('jolly_cart') || '[]');
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.innerHTML = `
+                <h3>Panier Actuel:</h3>
+                <pre>${JSON.stringify(cart, null, 2)}</pre>
+                <h3>Sous-total: ${getCartSubtotal().toFixed(2)}€</h3>
+            `;
+        }
+
+        // Inclure le code du panier (copié depuis script.js)
+        let cart = [];
+
+        function initCart() {
+            try {
+                const stored = localStorage.getItem('jolly_cart');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        cart = parsed.map(item => ({
+                            ...item,
+                            id: String(item.id),
+                            price: parseFloat(item.price) || 0,
+                            quantity: parseInt(item.quantity) || 1
+                        }));
+                    } else {
+                        cart = [];
+                    }
+                } else {
+                    cart = [];
+                }
+            } catch (e) {
+                console.error('Error loading cart:', e);
+                cart = [];
+            }
+            updateCartUI();
+            renderCartOverlay();
+        }
+
+        function saveCart() {
+            localStorage.setItem('jolly_cart', JSON.stringify(cart));
+            updateCartUI();
+            renderCartOverlay();
+            console.log('Cart saved:', cart);
+        }
+
+        function escHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function addToCart(id, name, price, image, category = '') {
+            if (id && typeof id === 'object') {
+                const obj = id;
+                id = obj.id;
+                name = obj.name;
+                price = parseFloat(obj.price);
+                image = obj.image;
+                category = obj.category || '';
+            }
+            price = parseFloat(price);
+            const idStr = String(id);
+            const existing = cart.find(item => String(item.id) === idStr);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id: idStr, name, price, image: image || '', category: category || '', quantity: 1 });
+            }
+            saveCart();
+            showToast(`${name} ajouté au panier`);
+            openCart();
+        }
+
+        function removeFromCart(id) {
+            const idStr = String(id);
+            cart = cart.filter(item => String(item.id) !== idStr);
+            saveCart();
+        }
+
+        function updateQuantity(id, delta) {
+            const item = cart.find(i => String(i.id) === String(id));
+            if (!item) return;
+            item.quantity = Math.max(1, item.quantity + delta);
+            saveCart();
+        }
+
+        function cartImageSrc(item) {
+            const base = '';
+            const img = item.image;
+            if (typeof img === 'string' && (img.startsWith('http') || img.startsWith('/'))) {
+                return img;
+            }
+            if (typeof img === 'string' && img.length) {
+                return `${base}/assets/images/${item.category}/${img}`;
+            }
+            return '';
+        }
+
+        function formatPriceEUR(price) {
+            const numPrice = parseFloat(price) || 0;
+            return numPrice.toFixed(2).replace('.', ',') + ' €';
+        }
+
+        function getCartSubtotal() {
+            return cart.reduce((sum, i) => {
+                const price = parseFloat(i.price) || 0;
+                const qty = parseInt(i.quantity) || 1;
+                const itemTotal = price * qty;
+                return sum + itemTotal;
+            }, 0);
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, i) => sum + (parseInt(i.quantity) || 1), 0);
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = count > 0 ? String(count) : '0';
+            });
+        }
+
+        function renderCartOverlay() {
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total-price');
+            const fillEl = document.getElementById('shipping-fill');
+            const labelEl = document.getElementById('shipping-label');
+            if (!container) return;
+
+            const subtotal = getCartSubtotal();
+            const freeFrom = 60;
+            const remaining = Math.max(0, freeFrom - subtotal);
+            const pct = Math.min(100, (subtotal / freeFrom) * 100);
+
+            console.log('Rendering cart - Subtotal:', subtotal, 'Remaining:', remaining);
+
+            if (fillEl) fillEl.style.width = pct + '%';
+            if (labelEl) {
+                if (subtotal >= freeFrom) {
+                    labelEl.innerHTML = '<span style="color:#2e7d32;">Livraison gratuite débloquée !</span>';
+                } else {
+                    labelEl.innerHTML = 'Plus que <strong>' + formatPriceEUR(remaining) + '</strong> pour la livraison gratuite !';
+                }
+            }
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-cart">Votre panier est vide</div>';
+                if (totalEl) totalEl.textContent = '0,00 €';
+                return;
+            }
+
+            let html = '';
+            cart.forEach(item => {
+                const imgSrc = cartImageSrc(item);
+                const itemId = String(item.id).replace(/"/g, '&quot;');
+                const itemPrice = parseFloat(item.price) || 0;
+                html += `
+                    <div class="cart-item">
+                        ${imgSrc ? `<img src="${escHtml(imgSrc)}" alt="">` : '<div style="width:72px;height:72px;background:#ddd;border-radius:10px;"></div>'}
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:600;font-size:.88rem;">${escHtml(item.name)}</div>
+                            <div style="font-size:.82rem;color:#666;margin-top:4px;">${formatPriceEUR(itemPrice)}</div>
+                            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                                <button type="button" onclick="updateQuantity('${itemId}',-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;">−</button>
+                                <span style="min-width:24px;text-align:center;font-weight:500;">${item.quantity}</span>
+                                <button type="button" onclick="updateQuantity('${itemId}',1)" style="width:28px;height:28px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;">+</button>
+                                <button type="button" onclick="removeFromCart('${itemId}')" style="margin-left:auto;color:red;background:none;border:none;cursor:pointer;font-size:1.2rem;" title="Retirer du panier">×</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+
+            const shipping = subtotal >= freeFrom ? 0 : 5.9;
+            const total = subtotal + shipping;
+            if (totalEl) totalEl.textContent = formatPriceEUR(total);
+        }
+
+        function openCart() {
+            document.getElementById('cart-bg')?.classList.add('open');
+            document.getElementById('cart-overlay')?.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            renderCartOverlay();
+        }
+
+        function closeCart() {
+            document.getElementById('cart-bg')?.classList.remove('open');
+            document.getElementById('cart-overlay')?.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function showToast(message) {
+            console.log('Toast:', message);
+            alert(message); // Simple alert for testing
+        }
+
+        // Expose functions globally
+        window.openCart = openCart;
+        window.closeCart = closeCart;
+        window.addToCart = addToCart;
+        window.removeFromCart = removeFromCart;
+        window.updateQuantity = updateQuantity;
+        window.showToast = showToast;
+        window.showCartData = showCartData;
+
+        // Initialize cart on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initCart();
+            showCartData();
+        });
+    </script>
+</body>
+</html>
