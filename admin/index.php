@@ -33,7 +33,7 @@ if (!isAdmin()) {
         }
         $loginError = 'Identifiants incorrects.';
     }
-    ?><!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    ?><!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5.0">
     <title>Admin — Jolly Beauty</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,400&family=Poppins:wght@400;500;600&display=swap">
     <style>*{box-sizing:border-box;margin:0;padding:0}:root{--rd:#D4788A;--rk:#B85C6E;--dk:#2C1A1D;--mu:#A07880;--sf:'Playfair Display',serif;--ss:'Poppins',sans-serif}body{font-family:var(--ss);background:linear-gradient(135deg,#FDF4F6,#FDE8EC 50%,#F8D7DA);min-height:100vh;display:grid;place-items:center}.card{background:#fff;border-radius:24px;padding:52px 44px;width:min(400px,92vw);box-shadow:0 24px 80px rgba(192,92,107,.15);text-align:center}.logo{font-family:var(--sf);font-size:2rem;font-style:italic;color:var(--dk);margin-bottom:4px}.sub{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-bottom:36px}label{display:block;text-align:left;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin:16px 0 6px}input{width:100%;padding:12px 16px;border:1.5px solid #F0D8DC;border-radius:10px;font-family:var(--ss);font-size:.88rem;color:var(--dk);outline:none;transition:border .2s}input:focus{border-color:var(--rd)}.btn{margin-top:26px;width:100%;padding:14px;background:var(--rd);color:#fff;border:none;border-radius:50px;font-family:var(--ss);font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s}.btn:hover{background:var(--rk)}.err{background:#FDE8EC;color:var(--rk);font-size:.78rem;padding:10px 14px;border-radius:8px;margin-top:14px;border-left:3px solid var(--rd)}</style></head><body>
@@ -233,7 +233,7 @@ foreach ($salesByMonth as $row) {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5.0">
 <title>Admin — Jolly Beauty</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -387,6 +387,26 @@ tbody tr:hover{background:rgba(253,244,246,.5)}
 /* EMPTY */
 .empty{padding:48px 20px;text-align:center;color:var(--mu)}
 .empty-i{font-size:2.2rem;opacity:.4;margin-bottom:10px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sb{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .3s;z-index:100}
+  .sb.open{transform:translateX(0)}
+  .mc{margin-left:0;padding:20px}
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .orders-table{font-size:.75rem}
+  .orders-table th,.orders-table td{padding:10px 8px}
+  .modal-content{width:95%;margin:20px auto}
+}
+@media(max-width:480px){
+  .sb{width:100%}
+  .grid-4{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .card-hd{flex-direction:column;align-items:flex-start;gap:10px}
+  .filters{flex-direction:column;align-items:stretch}
+  .modal-row{flex-direction:column;gap:8px}
+}
 </style>
 </head>
 <body>

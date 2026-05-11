@@ -59,6 +59,134 @@ if (!$product) {
             'category' => 'bijoux',
             'images' => ['/assets/images/bijoux/bracelet-charms-eclat.jpg'],
             'stock' => 11
+        ],
+        // Soins & Rituels
+        'gommage-corps-rose-sucre' => [
+            'id' => 'mock-soins-1',
+            'name' => 'Gommage Corps Rose & Sucre',
+            'price' => 26.90,
+            'description' => 'Un gommage doux au sucre et à la rose pour une peau satinée et hydratée.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-corps-1.jpg'],
+            'stock' => 15
+        ],
+        'creme-hydratante-fleur-rose' => [
+            'id' => 'mock-soins-2',
+            'name' => 'Crème Hydratante Fleur de Rose',
+            'price' => 28.90,
+            'description' => 'Une crème légère et fondante pour hydrater et illuminer le visage.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/creme-visage.jpg'],
+            'stock' => 12
+        ],
+        'huile-nourrissante-amande' => [
+            'id' => 'mock-soins-3',
+            'name' => 'Huile Nourrissante Amande Douce',
+            'price' => 22.90,
+            'description' => 'Une huile sèche multi-usages pour nourrir corps et cheveux.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-corps-2.jpg'],
+            'stock' => 18
+        ],
+        'beurre-corps-karite-vanille' => [
+            'id' => 'mock-soins-4',
+            'name' => 'Beurre Corps Karité & Vanille',
+            'price' => 24.90,
+            'description' => 'Un beurre riche et fondant pour hydrater en profondeur.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-visage-1.jpg'],
+            'stock' => 10
+        ],
+        'savon-surgras-fleur-oranger' => [
+            'id' => 'mock-soins-5',
+            'name' => 'Savon Surgras Fleur d\'Oranger',
+            'price' => 8.90,
+            'description' => 'Un savon artisanal surgras au parfum délicat de fleur d\'oranger.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-visage-2.jpg'],
+            'stock' => 25
+        ],
+        'eau-florale-rose-damas' => [
+            'id' => 'mock-soins-6',
+            'name' => 'Eau Florale Rose de Damas',
+            'price' => 16.90,
+            'description' => 'Une eau florale apaisante pour tonifier et rafraîchir la peau.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-corps-1.jpg'],
+            'stock' => 20
+        ],
+        'masque-visage-argile-rose' => [
+            'id' => 'mock-soins-7',
+            'name' => 'Masque Visage Argile Rose',
+            'price' => 19.90,
+            'description' => 'Un masque purifiant à l\'argile rose pour une peau nette et éclatante.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-visage-1.jpg'],
+            'stock' => 14
+        ],
+        'baume-levres-nourrissant' => [
+            'id' => 'mock-soins-8',
+            'name' => 'Baume à Lèvres Nourrissant',
+            'price' => 7.90,
+            'description' => 'Un baume protecteur pour des lèvres douces et hydratées.',
+            'category' => 'soins',
+            'images' => ['/assets/images/soins/soin-visage-2.jpg'],
+            'stock' => 30
+        ],
+        // Coffrets
+        'coffret-decouverte' => [
+            'id' => 'mock-coffret-1',
+            'name' => 'Coffret Découverte',
+            'price' => 49.90,
+            'description' => 'Un coffret idéal pour découvrir l\'univers Jolly Beauty.',
+            'category' => 'coffrets',
+            'images' => ['/assets/images/coffrets/coffret-luxe.jpg'],
+            'stock' => 8
+        ],
+        'coffret-prestige' => [
+            'id' => 'mock-coffret-2',
+            'name' => 'Coffret Prestige',
+            'price' => 89.90,
+            'description' => 'Notre coffret signature avec nos meilleures créations.',
+            'category' => 'coffrets',
+            'images' => ['/assets/images/coffrets/coffret-prestige-1.jpg'],
+            'stock' => 6
+        ],
+        'coffret-bijoux' => [
+            'id' => 'mock-coffret-3',
+            'name' => 'Coffret Bijoux',
+            'price' => 69.90,
+            'description' => 'Un coffret élégant avec une sélection de bijoux raffinés.',
+            'category' => 'coffrets',
+            'images' => ['/assets/images/coffrets/coffret-prestige-2.jpg'],
+            'stock' => 10
+        ],
+        'coffret-rituel' => [
+            'id' => 'mock-coffret-4',
+            'name' => 'Coffret Rituel',
+            'price' => 59.90,
+            'description' => 'Un coffret bien-être pour un moment de détente absolu.',
+            'category' => 'coffrets',
+            'images' => ['/assets/images/coffrets/coffret-luxe.jpg'],
+            'stock' => 12
+        ],
+        'coffret-luxe' => [
+            'id' => 'mock-coffret-5',
+            'name' => 'Coffret Luxe',
+            'price' => 129.90,
+            'description' => 'Notre coffret d\'exception avec une sélection premium.',
+            'category' => 'coffrets',
+            'images' => ['/assets/images/coffrets/coffret-prestige-1.jpg'],
+            'stock' => 5
+        ],
+        'coffret-mini' => [
+            'id' => 'mock-coffret-6',
+            'name' => 'Coffret Mini',
+            'price' => 39.90,
+            'description' => 'Un petit coffret parfait pour offrir un moment de plaisir.',
+            'category' => 'coffrets',
+            'images' => ['/assets/images/coffrets/coffret-prestige-2.jpg'],
+            'stock' => 15
         ]
     ];
     
@@ -67,6 +195,7 @@ if (!$product) {
 
 if (!$product) { header('Location: ' . BASE_URL . '/bijoux.php'); exit; }
 $pageTitle = sanitize($product['name']) . ' — Jolly Beauty';
+$jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
 
 // Récupère les images du produit depuis la base de données ou mock data
 $images = !empty($product['images']) ? $product['images'] : [];
@@ -117,7 +246,6 @@ if (count($related) < 4) {
 $related = array_slice($related, 0, 4);
 
 include __DIR__ . '/../includes/header.php';
-$jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
 ?>
 
 <div style="background:var(--rose-pale);padding:16px 6%;font-size:.76rem;color:var(--muted);" class="breadcrumb">
@@ -138,6 +266,7 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
                alt="<?= sanitize($product['name']) ?>" 
                id="gallery-main-img"
                class="gallery-zoomable"
+               onerror="console.error('Image failed to load:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.3\'>🌸</div>';"
                onclick="openZoom(this.src)">
         <?php else: ?>
           <div style="width:100%;height:100%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:.25">🌸</div>
@@ -146,11 +275,13 @@ $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8');
       </div>
       <?php if (count($images) > 1): ?>
       <div class="gallery-thumbs">
-        <?php foreach(array_slice($images,0,6) as $i=>$img): ?>
+        <?php foreach(array_slice($images,0,6) as $i=>$img):
+          $thumbUrl = $jbBase . $img;
+        ?>
         <div class="gallery-thumb-wrap <?= $i===0?'active':'' ?>">
-          <img src="<?= htmlspecialchars($img) ?>" 
-               class="gallery-thumb" 
-               onclick="switchImg(this,'<?= htmlspecialchars($img) ?>')" 
+          <img src="<?= htmlspecialchars($thumbUrl) ?>"
+               class="gallery-thumb"
+               onclick="switchImg(this,'<?= htmlspecialchars($thumbUrl) ?>')"
                alt="<?= sanitize($product['name']) ?>"
                loading="lazy">
         </div>
@@ -399,15 +530,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Amélioration du chargement des images
-document.addEventListener('DOMContentLoaded', function() {
-    const mainImg = document.getElementById('gallery-main-img');
-    if (mainImg) {
-        mainImg.addEventListener('load', function() {
-            this.style.opacity = '1';
-        });
-    }
-});
 </script>
 
 <style>
@@ -425,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .gallery-main img {
     transition: opacity 0.3s ease, transform 0.3s ease;
-    opacity: 0;
+    opacity: 1;
 }
 
 .gallery-main img:hover {

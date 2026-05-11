@@ -10,9 +10,7 @@ include __DIR__ . '/../includes/header.php';
   <div class="carousel-container">
     <div class="carousel-slide active" style="background: linear-gradient(rgba(212, 120, 138, 0.4), rgba(212, 120, 138, 0.4)), url('<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/slider/slider-1.jpg') center/cover;">
       <div class="carousel-content">
-        <div class="carousel-badge">NOUVEAUTÉ</div>
-        <h1>L'Éclat de la féminité</h1>
-        <p>Découvrez nos bijoux en acier inoxydable qui subliment votre beauté au quotidien</p>
+        <h1>✨ Des bijoux délicats et des rituels sensoriels pensés pour sublimer votre féminité.</h1>
         <div class="carousel-buttons">
           <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/bijoux.php" class="btn btn-primary">Explorer les Bijoux</a>
           <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/coffrets.php" class="btn btn-outline">Coffrets Cadeaux</a>
@@ -99,27 +97,27 @@ include __DIR__ . '/../includes/header.php';
   <h2 class="section-title">NOS BEST-SELLERS</h2>
   <div class="products-grid">
     <div class="product-card">
-      <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/bracelet-charms-eclat.jpg" alt="Bracelet Charms Éclat" class="product-image">
+      <div class="product-image-wrap">
+        <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/bracelet-charms-eclat.jpg" alt="Bracelet Charms Éclat" class="product-image">
+      </div>
       <h3>Bracelet Charms Éclat</h3>
       <p class="product-price">36,90 €</p>
       <button class="btn-add-cart">AJOUTER AU PANIER</button>
     </div>
     <div class="product-card">
-      <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/bague-coeur-douceur.jpg" alt="Bague Cœur Douceur" class="product-image">
+      <div class="product-image-wrap">
+        <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/bague-coeur-douceur.jpg" alt="Bague Cœur Douceur" class="product-image">
+      </div>
       <h3>Bague Cœur Douceur</h3>
       <p class="product-price">29,90 €</p>
       <button class="btn-add-cart">AJOUTER AU PANIER</button>
     </div>
     <div class="product-card">
-      <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/produits/beurre-karite-fouette.jpeg" alt="Beurre de Karité Finesse" class="product-image">
+      <div class="product-image-wrap">
+        <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/produits/beurre-karite-fouette.jpeg" alt="Beurre de Karité Finesse" class="product-image">
+      </div>
       <h3>Beurre de Karité Finesse</h3>
       <p class="product-price">24,90 €</p>
-      <button class="btn-add-cart">AJOUTER AU PANIER</button>
-    </div>
-    <div class="product-card">
-      <img src="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/images/bijoux/bijoux-collier-1.jpg" alt="Collier Lumière" class="product-image">
-      <h3>Collier Lumière</h3>
-      <p class="product-price">42,90 €</p>
       <button class="btn-add-cart">AJOUTER AU PANIER</button>
     </div>
   </div>

@@ -125,19 +125,19 @@ include __DIR__ . '/../includes/header.php';
       <div class="contact-info-card">
         <span class="contact-icon">✉️</span>
         <h3>E-mail</h3>
-        <p>contact@jollybeauty.com<br>Nous répondons sous 24 à 48h.</p>
+        <p>contact@jolly-beauty.fr<br>Nous répondons sous 24 à 48h.</p>
       </div>
       
       <div class="contact-info-card">
-        <span class="contact-icon">�</span>
-        <h3>Téléphone</h3>
-        <p>+33 6 00 00 00 00<br>Du lundi au vendredi<br>9h00 – 18h00</p>
+        <span class="contact-icon">📞</span>
+        <h3>Téléphone & WhatsApp</h3>
+        <p><a href="tel:+330756957481" style="color:inherit;text-decoration:none;">+33 07 56 95 74 81</a><br><a href="https://wa.me/330756957481" target="_blank" rel="noopener" style="color:#d4788a;text-decoration:none;">💬 WhatsApp Business</a><br>Du lundi au vendredi<br>9h00 – 18h00</p>
       </div>
       
       <div class="contact-info-card">
         <span class="contact-icon">💬</span>
         <h3>Instagram</h3>
-        <p>@jollybeauty_<br>Envoyez-nous un message<br>en direct !</p>
+        <p><a href="https://www.instagram.com/jollyy_beauty" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">@jollyy_beauty</a><br>Envoyez-nous un message<br>en direct !</p>
       </div>
       
       <div class="contact-info-card">

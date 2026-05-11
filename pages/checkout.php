@@ -124,10 +124,11 @@ $total = $subtotal + $shipping;
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title><?= htmlspecialchars($pageTitle) ?></title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="<?= $jbBase ?>/assets/css/style.css">
+<link rel="stylesheet" href="<?= $jbBase ?>/assets/css/responsive.css">
 </head>
 <body class="checkout-admin-body">
 

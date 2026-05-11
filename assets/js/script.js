@@ -360,6 +360,37 @@ function closeSearch() {
 window.toggleSearch = toggleSearch;
 window.closeSearch = closeSearch;
 
+// ── Navigation Mobile ─────────────────────────────────────────────────────
+function openMobileNav() {
+    document.getElementById('mobile-nav')?.classList.add('open');
+    // Créer l'overlay s'il n'existe pas
+    let overlay = document.getElementById('mobile-nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'mobile-nav-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:199;background:rgba(0,0,0,0.4);opacity:0;transition:opacity .3s;pointer-events:none;';
+        overlay.onclick = closeMobileNav;
+        document.body.appendChild(overlay);
+    }
+    overlay.style.pointerEvents = 'auto';
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileNav() {
+    document.getElementById('mobile-nav')?.classList.remove('open');
+    const overlay = document.getElementById('mobile-nav-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+        setTimeout(() => overlay.remove(), 300);
+    }
+    document.body.style.overflow = '';
+}
+
+window.openMobileNav = openMobileNav;
+window.closeMobileNav = closeMobileNav;
+
 // ── Toast ────────────────────────────────────────────────────────────────
 function showToast(message) {
     const stack = document.getElementById('toast-stack');

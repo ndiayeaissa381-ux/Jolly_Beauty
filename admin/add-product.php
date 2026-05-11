@@ -80,7 +80,7 @@ $categories = $db->query('SELECT * FROM categories ORDER BY sort_order')->fetchA
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Ajouter un produit — Admin Jolly Beauty</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap">
   <style>
@@ -235,6 +235,24 @@ $categories = $db->query('SELECT * FROM categories ORDER BY sort_order')->fetchA
     .subcategory-selector select option:disabled {
       color: #999;
       font-style: italic;
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px){
+      .sb{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .3s;z-index:100}
+      .sb.open{transform:translateX(0)}
+      .mc{margin-left:0;padding:20px}
+      .form-grid{grid-template-columns:1fr}
+      .images-grid{grid-template-columns:repeat(2,1fr)}
+      .prev-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:480px){
+      .sb{width:100%}
+      .card-hd{flex-direction:column;align-items:flex-start;gap:10px}
+      .images-grid{grid-template-columns:1fr}
+      .prev-grid{grid-template-columns:1fr}
+      .form-actions{flex-direction:column}
+      .form-actions button{width:100%}
     }
   </style>
 </head>

@@ -98,11 +98,12 @@ $pageTitle = $mode === 'register' ? 'Créer un compte — Jolly Beauty' : 'Conne
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title><?= $pageTitle ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="<?= $jbBase ?>/assets/css/style.css">
+<link rel="stylesheet" href="<?= $jbBase ?>/assets/css/responsive.css">
 <style>
 /* ─── AUTH PAGE ────────────────────────────────────────────── */
 .auth-page {

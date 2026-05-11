@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta name="description" content="Jolly Beauty — Bijoux délicats & rituels de beauté pour sublimer votre féminité.">
 <title><?= htmlspecialchars($pageTitle ?? 'Jolly Beauty') ?></title>
 <?php $jbBase = htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8'); ?>
@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="<?= $jbBase ?>/assets/css/style.css?v=<?= time() ?>">
 <link rel="stylesheet" href="<?= $jbBase ?>/assets/css/homepage.css?v=<?= time() ?>">
+<link rel="stylesheet" href="<?= $jbBase ?>/assets/css/responsive.css?v=<?= time() ?>">
 <?php if (!empty($extraCss)) echo $extraCss; ?>
 <script>
 window.JB_BASE = '<?= $jbBase ?>';

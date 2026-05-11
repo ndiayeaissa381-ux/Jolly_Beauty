@@ -1,0 +1,1247 @@
+/* ============================================================
+   JOLLY BEAUTY — RESPONSIVE DESIGN COMPLET
+   Adaptation pour tous les écrans : mobile, tablette, desktop
+   ============================================================ */
+
+/* ============================================================
+   1. RÈGLES GLOBALES ANTI-DÉBORDEMENT
+   Empêche le scroll horizontal et force l'adaptation
+   ============================================================ */
+html, body {
+  max-width: 100% !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Forcer le comportement responsive sur tous les éléments */
+*, *::before, *::after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* CORRECTION CRITIQUE: Empêcher tout débordement horizontal */
+body {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Forcer les conteneurs à ne jamais déborder */
+section, article, aside, header, footer, nav, div, main {
+  max-width: 100%;
+}
+
+img, video, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
+}
+
+table, pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Empêche les textes longs de créer du débordement */
+body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Forcer les conteneurs principaux à respecter la largeur */
+.container, .wrapper, .page-wrapper,
+.product-section, .products-section,
+.category-showcase, .bestsellers,
+.categories, .testimonials-section,
+.lifestyle-section, .brand-story,
+.footer, .page-hero, .cat-body,
+.story-main, .rituals-showcase {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Empêcher les images de déborder de leurs conteneurs */
+.category-image,
+.product-image,
+.lifestyle-image,
+.story-image img,
+.rituals-image img,
+.gallery-main img,
+.hero__right img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================================
+   2. VARIABLES RESPONSIVES
+   ============================================================ */
+:root {
+  --mobile-padding: 16px;
+  --tablet-padding: 24px;
+  --desktop-padding: 40px;
+  --nav-mobile-h: 60px;
+}
+
+/* ============================================================
+   2. BASE MOBILE-FIRST (max-width: 480px) - Petits téléphones
+   ============================================================ */
+@media (max-width: 480px) {
+  /* FORCER TOUTES LES GRILLES EN 1 COLONNE - Priorité absolue */
+  .products-grid,
+  .products-grid-4,
+  .product-grid,
+  .category-grid,
+  .cat-grid,
+  .testimonials-grid,
+  .feature-highlights,
+  .cat-reassurance,
+  .jb-products-grid,
+  .sp-info-grid,
+  .footer-grid,
+  .dash-grid,
+  .auth-wrap,
+  .checkout-wrap,
+  .product-layout,
+  .cat-body,
+  .story-container,
+  .rituals-container,
+  .brand-story,
+  .cat-hero,
+  .cat-editorial,
+  .hero,
+  .hero-carousel {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Forcer flex en colonne sur mobile */
+  .hero__actions,
+  .carousel-buttons,
+  .lifestyle-section,
+  .product-cta-row,
+  .qty-row,
+  .newsletter-form,
+  .footer-bottom,
+  .cart-item,
+  .nav-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .hero__actions .btn,
+  .carousel-buttons .btn,
+  .product-cta-row .btn {
+    width: 100% !important;
+  }
+  
+  /* Navigation mobile */
+  .nav {
+    height: var(--nav-mobile-h);
+    padding: 0 12px;
+  }
+  
+  .nav-logo {
+    font-size: 1.3rem;
+  }
+  
+  .nav-logo img {
+    height: 36px;
+  }
+  
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  /* Hero sections */
+  .hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+  
+  .hero__left {
+    padding: 30px 16px 24px;
+    order: 2;
+  }
+  
+  .hero__right {
+    height: 50vh;
+    min-height: 300px;
+    order: 1;
+  }
+  
+  .hero__title {
+    font-size: clamp(1.8rem, 8vw, 2.2rem);
+    line-height: 1.2;
+  }
+  
+  .hero__sub {
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
+  
+  .hero__actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .hero__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Carrousel mobile - CORRECTION CRITIQUE */
+  .hero-carousel,
+  section.hero-carousel,
+  div.hero-carousel {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    min-height: 350px !important;
+  }
+  
+  .carousel-container,
+  .hero-carousel .carousel-container {
+    height: auto !important;
+    position: relative !important;
+  }
+  
+  .carousel-slide,
+  .carousel-slide.active {
+    position: relative !important;
+    height: auto !important;
+    min-height: 350px !important;
+    width: 100% !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+  
+  /* Forcer le texte du carrousel à s'adapter */
+  .carousel-content h1 {
+    font-size: clamp(1.5rem, 5vw, 1.8rem) !important;
+    word-wrap: break-word;
+  }
+  
+  .carousel-content p {
+    font-size: 0.9rem !important;
+    max-width: 100%;
+  }
+  
+  .carousel-content {
+    padding: 0 16px;
+    max-width: 100%;
+  }
+  
+  .carousel-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* Empêcher tout texte de créer du débordement */
+  h1, h2, h3, h4, h5, h6, p, span, a, li {
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .carousel-buttons .btn {
+    width: 100%;
+  }
+  
+  .carousel-arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .prev { left: 10px; }
+  .next { right: 10px; }
+  
+  /* Sections générales */
+  .bestsellers,
+  .categories,
+  .product-section,
+  .products-section,
+  .category-showcase,
+  .testimonials-section,
+  .lifestyle-section {
+    padding: 40px var(--mobile-padding);
+  }
+  
+  .section-head {
+    margin-bottom: 32px;
+    padding: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .section-title {
+    font-size: 1.6rem;
+  }
+  
+  /* Grilles de produits */
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0;
+  }
+  
+  .products-grid-4 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  /* Cartes produits */
+  .product-card {
+    padding: 1rem;
+  }
+  
+  .product-img {
+    height: 180px;
+  }
+  
+  .product-card__img-wrap {
+    aspect-ratio: 4/3;
+  }
+  
+  .product-name {
+    font-size: 0.95rem;
+  }
+  
+  .product-price {
+    font-size: 1rem;
+  }
+  
+  /* Catégories - CORRECTION CRITIQUE */
+  .category-grid,
+  .category-showcase .category-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 0 16px !important;
+  }
+  
+  .category-card,
+  .category-showcase .category-card {
+    height: 280px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .category-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  
+  .category-showcase-header h2 {
+    font-size: 1.6rem;
+  }
+  
+  .cat-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .cat-card {
+    aspect-ratio: 4/5;
+  }
+  
+  /* Feature highlights */
+  .feature-highlights {
+    grid-template-columns: 1fr;
+    padding: 40px var(--mobile-padding);
+    gap: 16px;
+  }
+  
+  .feature-item {
+    padding: 20px 16px;
+  }
+  
+  /* Témoignages */
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .testimonial-card {
+    padding: 24px 20px;
+  }
+  
+  /* Lifestyle section */
+  .lifestyle-section {
+    flex-direction: column;
+    padding: 40px var(--mobile-padding);
+  }
+  
+  .lifestyle-left {
+    max-width: 100%;
+    padding-right: 0;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .lifestyle-left h2 {
+    font-size: 1.5rem;
+  }
+  
+  /* Brand story */
+  .brand-story {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 60px var(--mobile-padding);
+  }
+  
+  .brand-story__img {
+    aspect-ratio: 1/1;
+  }
+  
+  /* Newsletter */
+  .newsletter {
+    padding: 50px var(--mobile-padding);
+  }
+  
+  .newsletter h2 {
+    font-size: 1.5rem;
+  }
+  
+  .newsletter-form {
+    flex-direction: column;
+  }
+  
+  .newsletter-form input,
+  .newsletter-form button {
+    width: 100%;
+  }
+  
+  /* Footer */
+  .footer {
+    padding: 50px var(--mobile-padding) 30px;
+  }
+  
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding-bottom: 30px;
+  }
+  
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .footer-legal {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  /* Cart overlay */
+  .cart-overlay {
+    width: 100vw;
+  }
+  
+  .cart-item-img {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .cart-item-name {
+    font-size: 0.8rem;
+  }
+  
+  /* Mobile nav */
+  .mobile-nav {
+    width: 85vw;
+    padding: 20px 24px;
+  }
+  
+  /* Search overlay */
+  .search-box {
+    width: 92vw;
+    padding: 20px;
+  }
+  
+  /* Formulaires */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkout-wrap {
+    padding: 30px var(--mobile-padding);
+  }
+  
+  /* Dashboard */
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Auth pages */
+  .auth-wrap {
+    grid-template-columns: 1fr;
+  }
+  
+  .auth-visual {
+    display: none;
+  }
+  
+  .auth-form-side {
+    padding: 40px var(--mobile-padding);
+  }
+  
+  /* Collection nav */
+  .collection-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .collection-pill {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+  }
+  
+  /* Page hero */
+  .page-hero {
+    padding: 60px var(--mobile-padding) 40px;
+  }
+  
+  .page-hero h1 {
+    font-size: 1.8rem;
+  }
+  
+  /* Filter bar */
+  .filter-bar {
+    padding: 16px var(--mobile-padding);
+    flex-wrap: wrap;
+  }
+  
+  .filter-tab {
+    padding: 6px 14px;
+    font-size: 0.65rem;
+  }
+  
+  /* Product page */
+  .product-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .product-gallery {
+    position: relative;
+    top: 0;
+  }
+  
+  .gallery-thumbs {
+    justify-content: center;
+  }
+  
+  .gallery-thumb {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .product-name {
+    font-size: 1.4rem;
+  }
+  
+  .product-price {
+    font-size: 1.2rem;
+  }
+  
+  .qty-row {
+    flex-wrap: wrap;
+  }
+  
+  .product-cta-row {
+    flex-direction: column;
+  }
+  
+  .product-cta-row .btn {
+    width: 100%;
+  }
+  
+  /* Category hero */
+  .cat-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  
+  .cat-hero__visual {
+    min-height: 200px;
+    order: -1;
+  }
+  
+  .cat-hero__content {
+    padding: 30px var(--mobile-padding);
+    text-align: center;
+  }
+  
+  .cat-hero__title {
+    font-size: clamp(1.6rem, 6vw, 2rem);
+  }
+  
+  .cat-hero__desc {
+    font-size: 0.9rem;
+  }
+  
+  /* Filter tabs */
+  .cat-filter-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 0;
+  }
+  
+  .cat-filter-tab {
+    padding: 12px 14px;
+    font-size: 0.65rem;
+  }
+  
+  /* Category body */
+  .cat-body {
+    grid-template-columns: 1fr;
+    padding: 0 var(--mobile-padding);
+    padding-top: 20px;
+    padding-bottom: 40px;
+  }
+  
+  .cat-products {
+    padding-left: 0;
+  }
+  
+  /* Reassurance */
+  .cat-reassurance {
+    grid-template-columns: 1fr;
+  }
+  
+  .cat-reassurance-item {
+    border-right: none !important;
+    border-top: 1px solid rgba(216,167,167,0.2);
+    padding: 20px var(--mobile-padding);
+  }
+  
+  .cat-reassurance-item:first-child {
+    border-top: none;
+  }
+  
+  /* Editorial */
+  .cat-editorial {
+    grid-template-columns: 1fr;
+    margin-top: 30px;
+  }
+  
+  .cat-editorial__img {
+    min-height: 180px;
+  }
+  
+  .cat-editorial__content {
+    padding: 30px var(--mobile-padding);
+  }
+  
+  .cat-editorial__title {
+    font-size: 1.3rem;
+  }
+  
+  /* Top bar */
+  .top-bar {
+    gap: 16px;
+    font-size: 0.6rem;
+    padding: 10px var(--mobile-padding);
+  }
+  
+  .top-bar-item {
+    gap: 4px;
+  }
+  
+  /* Toast */
+  .toast-stack {
+    left: var(--mobile-padding);
+    right: var(--mobile-padding);
+    bottom: 16px;
+  }
+  
+  .toast {
+    width: 100%;
+  }
+  
+  /* Back to top */
+  .back-top {
+    bottom: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+  
+  /* Cursor */
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+}
+
+/* ============================================================
+   3. MOBILE LARGES (481px - 640px)
+   ============================================================ */
+@media (min-width: 481px) and (max-width: 640px) {
+  .products-grid,
+  .products-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .category-card {
+    height: 280px;
+  }
+  
+  .feature-highlights {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cat-reassurance {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cat-reassurance-item:nth-child(2) { border-right: none; }
+  .cat-reassurance-item:nth-child(3),
+  .cat-reassurance-item:nth-child(4) {
+    border-top: 1px solid rgba(216,167,167,0.2);
+  }
+  
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================
+   4. TABLETTES PETITES (641px - 768px)
+   ============================================================ */
+@media (min-width: 641px) and (max-width: 768px) {
+  .nav {
+    padding: 0 20px;
+  }
+  
+  .hero__left {
+    padding: 40px 24px;
+  }
+  
+  .hero__right {
+    height: 60vh;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .products-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .category-card {
+    height: 350px;
+  }
+  
+  .feature-highlights {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .brand-story {
+    grid-template-columns: 1fr;
+    padding: 60px 24px;
+  }
+  
+  .lifestyle-section {
+    padding: 60px 24px;
+  }
+  
+  .bestsellers,
+  .categories,
+  .product-section,
+  .products-section,
+  .category-showcase,
+  .testimonials-section {
+    padding: 60px 24px;
+  }
+  
+  .cat-hero__content {
+    padding: 40px 24px;
+  }
+  
+  .cat-body {
+    grid-template-columns: 1fr;
+    padding: 0 24px;
+    padding-top: 24px;
+  }
+  
+  .cat-sidebar {
+    display: none;
+  }
+  
+  .cat-products {
+    padding-left: 0;
+  }
+  
+  .products-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .cat-reassurance {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .footer {
+    padding: 60px 24px 30px;
+  }
+  
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+  
+  .checkout-wrap {
+    grid-template-columns: 1fr;
+  }
+  
+  .order-summary-card {
+    position: relative;
+    top: 0;
+  }
+  
+  .product-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-gallery {
+    position: relative;
+    top: 0;
+  }
+  
+  .dash-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================
+   5. TABLETTES (769px - 1024px)
+   ============================================================ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .nav {
+    padding: 0 24px;
+  }
+  
+  .nav-links {
+    gap: 20px;
+  }
+  
+  .nav-links a {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+  
+  .hero {
+    min-height: auto;
+  }
+  
+  .hero__left {
+    padding: 60px 5%;
+  }
+  
+  .hero__title {
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  
+  .products-grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+  
+  .category-card {
+    height: 400px;
+  }
+  
+  .feature-highlights {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cat-body {
+    grid-template-columns: 180px 1fr;
+    padding: 0 3%;
+  }
+  
+  .cat-sidebar {
+    padding-right: 16px;
+  }
+  
+  .cat-products {
+    padding-left: 20px;
+  }
+  
+  .products-grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  
+  .cat-reassurance {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .checkout-wrap {
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+  }
+  
+  .product-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  
+  .story-container,
+  .rituals-container {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+  
+  .story-image,
+  .rituals-image {
+    position: relative;
+    top: 0;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .brand-story {
+    gap: 50px;
+    padding: 70px 5%;
+  }
+  
+  .footer {
+    padding: 60px 5% 30px;
+  }
+  
+  .footer-grid {
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 30px;
+  }
+}
+
+/* ============================================================
+   6. LAPTOPS (1025px - 1280px)
+   ============================================================ */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .nav {
+    padding: 0 3%;
+  }
+  
+  .nav-links {
+    gap: 28px;
+  }
+  
+  .hero__left {
+    padding: 80px 6%;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  
+  .products-grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  
+  .cat-body {
+    padding: 0 4%;
+  }
+  
+  .checkout-wrap {
+    gap: 30px;
+  }
+  
+  .story-container,
+  .rituals-container {
+    gap: 60px;
+  }
+}
+
+/* ============================================================
+   7. GRANDS ÉCRANS (min-width: 1440px)
+   ============================================================ */
+@media (min-width: 1440px) {
+  .nav {
+    padding: 0 8%;
+  }
+  
+  .hero__left {
+    padding: 100px 8%;
+  }
+  
+  .bestsellers,
+  .categories,
+  .product-section,
+  .products-section {
+    padding: 120px 12%;
+  }
+  
+  .category-showcase,
+  .testimonials-section {
+    padding: 100px 8%;
+  }
+  
+  .product-grid {
+    gap: 5rem;
+    padding: 0 4rem;
+  }
+  
+  .footer {
+    padding: 80px 12% 40px;
+  }
+}
+
+/* ============================================================
+   8. AMÉLIORATIONS TACTILES POUR MOBILE
+   ============================================================ */
+@media (hover: none) and (pointer: coarse) {
+  /* Augmenter les zones tactiles */
+  .nav-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .nav-links a {
+    padding: 12px 8px;
+  }
+  
+  .btn {
+    min-height: 48px;
+  }
+  
+  .card-action-btn {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .product-card__add {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .cart-qty-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .size-btn {
+    padding: 12px 20px;
+    min-width: 48px;
+  }
+  
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .btn-wishlist {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .jb-rich-card__wish {
+    width: 48px;
+    height: 48px;
+  }
+  
+  /* Désactiver les hover qui peuvent rester bloqués */
+  .product-card:hover,
+  .category-card:hover,
+  .testimonial-card:hover,
+  .feature-item:hover,
+  .prod-card:hover {
+    transform: none;
+  }
+  
+  /* Activer l'active state pour le feedback tactile */
+  .product-card:active,
+  .category-card:active,
+  .btn:active,
+  .nav-btn:active {
+    transform: scale(0.98);
+  }
+  
+  /* Toujours afficher les actions sur mobile */
+  .product-card__actions {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .card-action-btn {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   9. ORIENTATION PAYSAGE SUR MOBILE
+   ============================================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+  }
+  
+  .hero__right {
+    height: 80vh;
+  }
+  
+  .hero-carousel {
+    min-height: 400px;
+    height: auto;
+  }
+  
+  .cart-overlay {
+    width: 100vw;
+  }
+  
+  .mobile-nav {
+    width: 60vw;
+  }
+}
+
+/* ============================================================
+   10. RÉDUCTION DES ANIMATIONS (accessibilité)
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .top-bar-track {
+    animation: none !important;
+  }
+  
+  .announce-track {
+    animation: none !important;
+  }
+  
+  .hero-sparkle {
+    animation: none !important;
+  }
+  
+  .hero-badge {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   11. IMPRESSION
+   ============================================================ */
+@media print {
+  .nav,
+  .mobile-nav,
+  .cart-overlay,
+  .cart-overlay-bg,
+  .search-overlay,
+  .toast-stack,
+  .back-top,
+  .cursor-dot,
+  .cursor-ring,
+  .top-bar-scrolling,
+  .nav-actions {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .product-card,
+  .category-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+}

@@ -106,14 +106,14 @@ include __DIR__ . '/../includes/header.php';
         <?php
         // Products mock data for display if no products in DB
         $mockProducts = [
-            ['name' => 'Gommage Corps<br>Rose & Sucre', 'price' => 26.90, 'image' => 'soin-corps-1.jpg', 'sub' => 'corps'],
-            ['name' => 'Crème Hydratante<br>Fleur de Rose', 'price' => 28.90, 'image' => 'creme-visage.jpg', 'sub' => 'visage'],
-            ['name' => 'Huile Nourrissante<br>Amande Douce', 'price' => 22.90, 'image' => 'soin-corps-2.jpg', 'sub' => 'corps'],
-            ['name' => 'Beurre Corps<br>Karité & Vanille', 'price' => 24.90, 'image' => 'soin-visage-1.jpg', 'sub' => 'corps'],
-            ['name' => 'Savon Surgras<br>Fleur d\'Oranger', 'price' => 8.90, 'image' => 'soin-visage-2.jpg', 'sub' => 'corps'],
-            ['name' => 'Eau Florale<br>Rose de Damas', 'price' => 16.90, 'image' => 'soin-corps-1.jpg', 'sub' => 'visage'],
-            ['name' => 'Masque Visage<br>Argile Rose', 'price' => 19.90, 'image' => 'soin-visage-1.jpg', 'sub' => 'visage'],
-            ['name' => 'Baume à Lèvres<br>Nourrissant', 'price' => 7.90, 'image' => 'soin-visage-2.jpg', 'sub' => 'visage'],
+            ['slug' => 'gommage-corps-rose-sucre', 'name' => 'Gommage Corps<br>Rose & Sucre', 'price' => 26.90, 'image' => 'soin-corps-1.jpg', 'sub' => 'corps'],
+            ['slug' => 'creme-hydratante-fleur-rose', 'name' => 'Crème Hydratante<br>Fleur de Rose', 'price' => 28.90, 'image' => 'creme-visage.jpg', 'sub' => 'visage'],
+            ['slug' => 'huile-nourrissante-amande', 'name' => 'Huile Nourrissante<br>Amande Douce', 'price' => 22.90, 'image' => 'soin-corps-2.jpg', 'sub' => 'corps'],
+            ['slug' => 'beurre-corps-karite-vanille', 'name' => 'Beurre Corps<br>Karité & Vanille', 'price' => 24.90, 'image' => 'soin-visage-1.jpg', 'sub' => 'corps'],
+            ['slug' => 'savon-surgras-fleur-oranger', 'name' => 'Savon Surgras<br>Fleur d\'Oranger', 'price' => 8.90, 'image' => 'soin-visage-2.jpg', 'sub' => 'corps'],
+            ['slug' => 'eau-florale-rose-damas', 'name' => 'Eau Florale<br>Rose de Damas', 'price' => 16.90, 'image' => 'soin-corps-1.jpg', 'sub' => 'visage'],
+            ['slug' => 'masque-visage-argile-rose', 'name' => 'Masque Visage<br>Argile Rose', 'price' => 19.90, 'image' => 'soin-visage-1.jpg', 'sub' => 'visage'],
+            ['slug' => 'baume-levres-nourrissant', 'name' => 'Baume à Lèvres<br>Nourrissant', 'price' => 7.90, 'image' => 'soin-visage-2.jpg', 'sub' => 'visage'],
         ];
 
         $displayProducts = !empty($products) ? $products : $mockProducts;

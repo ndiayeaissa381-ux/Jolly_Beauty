@@ -102,12 +102,12 @@ include __DIR__ . '/../includes/header.php';
         <?php
         // Products mock data for display if no products in DB
         $mockProducts = [
-            ['name' => 'Coffret Découverte', 'price' => 49.90, 'image' => 'coffret-luxe.jpg', 'sub' => 'soins'],
-            ['name' => 'Coffret Prestige', 'price' => 89.90, 'image' => 'coffret-prestige-1.jpg', 'sub' => 'mixtes'],
-            ['name' => 'Coffret Bijoux', 'price' => 69.90, 'image' => 'coffret-prestige-2.jpg', 'sub' => 'bijoux'],
-            ['name' => 'Coffret Rituel', 'price' => 59.90, 'image' => 'coffret-luxe.jpg', 'sub' => 'soins'],
-            ['name' => 'Coffret Luxe', 'price' => 129.90, 'image' => 'coffret-prestige-1.jpg', 'sub' => 'mixtes'],
-            ['name' => 'Coffret Mini', 'price' => 39.90, 'image' => 'coffret-prestige-2.jpg', 'sub' => 'bijoux'],
+            ['slug' => 'coffret-decouverte', 'name' => 'Coffret Découverte', 'price' => 49.90, 'image' => 'coffret-luxe.jpg', 'sub' => 'soins'],
+            ['slug' => 'coffret-prestige', 'name' => 'Coffret Prestige', 'price' => 89.90, 'image' => 'coffret-prestige-1.jpg', 'sub' => 'mixtes'],
+            ['slug' => 'coffret-bijoux', 'name' => 'Coffret Bijoux', 'price' => 69.90, 'image' => 'coffret-prestige-2.jpg', 'sub' => 'bijoux'],
+            ['slug' => 'coffret-rituel', 'name' => 'Coffret Rituel', 'price' => 59.90, 'image' => 'coffret-luxe.jpg', 'sub' => 'soins'],
+            ['slug' => 'coffret-luxe', 'name' => 'Coffret Luxe', 'price' => 129.90, 'image' => 'coffret-prestige-1.jpg', 'sub' => 'mixtes'],
+            ['slug' => 'coffret-mini', 'name' => 'Coffret Mini', 'price' => 39.90, 'image' => 'coffret-prestige-2.jpg', 'sub' => 'bijoux'],
         ];
 
         $displayProducts = !empty($products) ? $products : $mockProducts;
